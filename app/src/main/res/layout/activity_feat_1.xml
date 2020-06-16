@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--<include-->
+        <!--layout="@layout/set_up_bar"-->
+        <!--android:title="Setting Up"-->
+        <!--android:id="@+id/set_up_2">-->
+
+        <!--</include>-->
+
+
+        <EditText
+            android:id="@+id/hours_of_sleep"
+            android:layout_width="80dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:inputType="number"
+            app:layout_constraintBottom_toTopOf="@+id/smoke_hist"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sleep_hours" />
+
+        <Spinner
+            android:id="@+id/spinner_drive"
+            android:layout_width="150dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/tiredness"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sleep_drive" />
+
+        <Spinner
+            android:id="@+id/spinner_rate"
+            android:layout_width="100dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="110dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tiredness" />
+
+        <Spinner
+            android:id="@+id/spinner_snore2"
+            android:layout_width="150dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/sleep_drive"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sleep_snore" />
+
+        <Spinner
+            android:id="@+id/spinner_smoking"
+            android:layout_width="100dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/sleep_snore"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/smoke_hist" />
+
+        <TextView
+            android:id="@+id/tiredness"
+            android:layout_width="223dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/sleepiness"
+            app:layout_constraintBottom_toTopOf="@+id/spinner_rate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinner_drive"
+            tools:text="@string/sleepiness" />
+
+        <TextView
+            android:id="@+id/sleep_drive"
+            android:layout_width="223dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/drive_and_sleep"
+            app:layout_constraintBottom_toTopOf="@+id/spinner_drive"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinner_snore2"
+            tools:text="@string/drive_and_sleep" />
+
+        <TextView
+            android:id="@+id/sleep_snore"
+            android:layout_width="223dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/sleep_snore"
+            app:layout_constraintBottom_toTopOf="@+id/spinner_snore2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinner_smoking"
+            tools:text="@string/sleep_snore" />
+
+        <TextView
+            android:id="@+id/smoke_hist"
+            android:layout_width="223dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/smoke_history"
+            app:layout_constraintBottom_toTopOf="@+id/spinner_smoking"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hours_of_sleep"
+            tools:text="@string/smoke_history" />
+
+        <TextView
+            android:id="@+id/sleep_hours"
+            android:layout_width="223dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/hour_per_sleep"
+            app:layout_constraintBottom_toTopOf="@+id/hours_of_sleep"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/hour_per_sleep" />
+
+        <Button
+            android:id="@+id/to_ins"
+            android:layout_width="65dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:onClick="to_ins"
+            android:text="next"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
+
+

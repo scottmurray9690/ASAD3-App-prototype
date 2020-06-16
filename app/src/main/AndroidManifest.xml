@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.protype_1">
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".CommunicationActivity"></activity>
+        <activity android:name=".WifiConnectActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".featureActivity"
+            android:label="Setting Up"
+            android:launchMode="singleTop"
+            android:parentActivityName=".MainActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".feature1Activity"
+            android:label="Setting Up"
+            android:launchMode="singleTop"
+            android:parentActivityName=".featureActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".featureActivity" />
+        </activity>
+        <activity
+            android:name=".ScanActivity"
+            android:label="Paired Devices"
+            android:launchMode="singleTop"
+            android:parentActivityName=".old.Ins3Activity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".old.Ins3Activity" />
+        </activity>
+        <activity
+            android:name=".Ins1Activity"
+            android:label="Instruction"
+            android:launchMode="singleTop"
+            android:parentActivityName=".feature1Activity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".feature1Activity" />
+        </activity>
+        <activity
+            android:name=".Ins2Activity"
+            android:label="Instruction"
+            android:launchMode="singleTop"
+            android:parentActivityName=".Ins1Activity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Ins1Activity" />
+        </activity>
+        <activity
+            android:name=".old.Ins3Activity"
+            android:label="Instruction"
+            android:launchMode="singleTop"
+            android:parentActivityName=".Ins2Activity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Ins2Activity" />
+        </activity>
+        <activity
+            android:name=".old.ConnectActivity"
+            android:label="Analysis"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ScanActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ScanActivity" />
+        </activity>
+        <activity
+            android:name=".old.RecordActivity"
+            android:label="Record"
+            android:launchMode="singleTop"
+            android:parentActivityName=".old.ConnectActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".old.ConnectActivity" />
+        </activity>
+        <activity
+            android:name=".old.SpectrumActivity"
+            android:label="Spectrum"
+            android:launchMode="singleTop"
+            android:parentActivityName=".old.ConnectActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".old.ConnectActivity" />
+        </activity>
+
+        <service android:name=".old.BluetoothClassService" />
+    </application>
+
+</manifest>
