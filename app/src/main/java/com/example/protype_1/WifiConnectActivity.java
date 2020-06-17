@@ -44,6 +44,11 @@ public class WifiConnectActivity extends AppCompatActivity {
         initWork();
         initOnClicks();
         getLocationPermission();
+        receiverWifi = new WifiReceiver(wifiManager, wifiList);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        registerReceiver(receiverWifi, intentFilter);
+        wifiManager.startScan();
         if (locationPermission) {
             boolean worked = wifiManager.startScan();
             if (!worked) {
@@ -85,8 +90,8 @@ public class WifiConnectActivity extends AppCompatActivity {
                 wifiManager.enableNetwork(netId, true);
                 wifiManager.reconnect();
 
-                ConnectionChecker connectionChecker = new ConnectionChecker("b8:27:eb:6d:df:39");
-                connectionChecker.start();
+                ConnectionChecker connectionChecker = new ConnectionChecker("b8:27:eb:d8:1f:44");
+                runOnUiThread(connectionChecker);
             }
         });
     }
@@ -103,8 +108,8 @@ public class WifiConnectActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        //unregisterReceiver(receiverWifi);
         super.onPause();
-        unregisterReceiver(receiverWifi);
     }
 
     public void getLocationPermission() {
@@ -141,11 +146,13 @@ public class WifiConnectActivity extends AppCompatActivity {
     }
 
     public void startCommunicationActivity() {
+        unregisterReceiver(receiverWifi);
+
         Intent nextActivity = new Intent(this, CommunicationActivity.class);
         startActivity(nextActivity);
     }
 
-    private class ConnectionChecker extends Thread {
+    private class ConnectionChecker implements Runnable {
         String targetBSSID;
         WifiInfo wifiInfo;
         public ConnectionChecker(String targetBSSID) {
@@ -164,9 +171,10 @@ public class WifiConnectActivity extends AppCompatActivity {
                 String ssid = wifiInfo.getSSID();
                 Log.i(TAG, "BSSID: " + bssid);
                 Log.i(TAG, "SSID: " + ssid);
-                if(bssid != null && bssid.equals(targetBSSID)) {
-                    startCommunicationActivity();
+                if(bssid != null ){// && bssid.equals(targetBSSID)) {
                     stop = true;
+                    startCommunicationActivity();
+                    break;
                 }
                 counter++;
                 if(counter > timeout) {

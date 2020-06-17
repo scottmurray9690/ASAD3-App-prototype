@@ -37,7 +37,6 @@ public class WifiReceiver extends BroadcastReceiver {
                 deviceList.add(scanResult.SSID + " - " + scanResult.BSSID);
                 index++;
             }
-            Toast.makeText(context, sb, Toast.LENGTH_SHORT).show();
             ArrayAdapter arrayAdapter = new ArrayAdapter(context, android.R.layout.simple_list_item_1, deviceList.toArray());
             wifiListView.setAdapter(arrayAdapter);
         }

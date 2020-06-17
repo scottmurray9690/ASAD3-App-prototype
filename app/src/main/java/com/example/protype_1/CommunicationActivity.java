@@ -42,6 +42,7 @@ public class CommunicationActivity extends AppCompatActivity {
             clientClass = new ClientClass(InetAddress.getByName("192.168.50.1"));
             clientClass.start();
         } catch (UnknownHostException e) {
+            message.setText("Error: "+e.toString());
             e.printStackTrace();
         }
     }
@@ -60,12 +61,13 @@ public class CommunicationActivity extends AppCompatActivity {
                 if (sendReceive != null) {
                     if(!recording) {
                         recording = true;
-                        sendReceive.write((byte) 2);
                         btn_startstop.setText("STOP");
+                        sendReceive.write("STARTRECORD".getBytes());
+
                     } else {
                         recording = false;
-                        sendReceive.write("STOPRECORD".getBytes());
                         btn_startstop.setText("START");
+                        sendReceive.write("STOPRECORD".getBytes());
                     }
                 }
             }
@@ -107,6 +109,7 @@ public class CommunicationActivity extends AppCompatActivity {
         public ClientClass(InetAddress hostAddress){
             this.hostAddress = hostAddress.getHostAddress();
             socket = new Socket();
+            message.setText("socket created");
         }
 
         @Override
@@ -118,6 +121,7 @@ public class CommunicationActivity extends AppCompatActivity {
                 sendReceive = new SendReceive(socket);
                 sendReceive.start();
             } catch (IOException e) {
+                message.setText("Error in ClientClass: "+e.toString());
                 e.printStackTrace();
             }
         }
@@ -158,6 +162,7 @@ public class CommunicationActivity extends AppCompatActivity {
         // Send commands to the server
         public void write (byte[] bytes) {
             try {
+                //TODO: this throws a NetworkOnMainThreadException
                 outputStream.write(bytes);
             } catch (IOException e) {
                 e.printStackTrace();
