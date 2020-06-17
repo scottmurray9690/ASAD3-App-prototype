@@ -155,6 +155,7 @@ public class WifiConnectActivity extends AppCompatActivity {
 
         @Override
         public void run() {
+            //git test
             boolean stop = false;
             int timeout = 100;
             int counter = 0;
