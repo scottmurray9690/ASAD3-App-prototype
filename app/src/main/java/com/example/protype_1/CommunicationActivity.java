@@ -2,6 +2,7 @@ package com.example.protype_1;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,6 +30,7 @@ public class CommunicationActivity extends AppCompatActivity {
     ClientClass clientClass;
 
     boolean recording;
+    private final String TAG = "CommunicationActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +86,10 @@ public class CommunicationActivity extends AppCompatActivity {
     private void drawSpectrogram() {
         new Thread() {
             public void run() {
-                while (true) {
                         try {
+                            if(audioAnalyzer!= null && audioAnalyzer.isFinished()) {
+                                break;
+                            }
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -99,7 +103,6 @@ public class CommunicationActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                }
         }.start();
     }
 
@@ -121,7 +124,6 @@ public class CommunicationActivity extends AppCompatActivity {
                 sendReceive = new SendReceive(socket);
                 sendReceive.start();
             } catch (IOException e) {
-                message.setText("Error in ClientClass: "+e.toString());
                 e.printStackTrace();
             }
         }
@@ -132,11 +134,13 @@ public class CommunicationActivity extends AppCompatActivity {
         private InputStream audioIn;
         private OutputStream outputStream;
 
-        public SendReceive(Socket socket){
+        public SendReceive(Socket socket) {
             this.socket = socket;
             try {
-                audioIn = socket.getInputStream();
+                audioIn = new BufferedInputStream(socket.getInputStream());
                 outputStream = socket.getOutputStream();
+                int buffersize = 1024;
+                audioAnalyzer = new AudioAnalyzer(audioIn, 44100, buffersize, buffersize * 3 / 4);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -145,34 +149,27 @@ public class CommunicationActivity extends AppCompatActivity {
         @Override
         public void run() {
             // Receive audio files from the server
-            try {
-                int buffersize = 1024;
-                InputStream audioIn = new BufferedInputStream(socket.getInputStream());
-                audioAnalyzer = new AudioAnalyzer(audioIn, 44100, buffersize, buffersize * 3 / 4);
 
-                audioAnalyzer.initDispatcher();
-                audioAnalyzer.startAnalyzer(5, 10000);
-
-                drawSpectrogram();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            audioAnalyzer.initDispatcher(5, 10000);
+            audioAnalyzer.startAnalyzer();
+            drawSpectrogram();
         }
 
         // Send commands to the server
-        public void write (byte[] bytes) {
-            try {
-                //TODO: this throws a NetworkOnMainThreadException
-                outputStream.write(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        public void write (byte b) {
-            try {
-                outputStream.write(b);
-            } catch (IOException e) {
-                e.printStackTrace();
+        public void write(final byte[] bytes) {
+            if (socket.isConnected()) {
+                new Thread(new Runnable() {
+                    public void run () {
+                        try {
+                            outputStream.write(bytes);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "Message send failed: "+e.toString());
+                        }
+                    }
+                }).start();
+
+
             }
         }
     }

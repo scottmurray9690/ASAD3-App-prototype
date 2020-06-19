@@ -95,23 +95,10 @@ public class AudioAnalyzer {
     }
 
     /**
-     * Initializes the dispatcher for the InputStream if given, otherwise uses the default microphone
-     */
-    public void initDispatcher(){
-        if(audioStream == null){
-            dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100 / 2, buffersize, overlap);
-        } else {
-            TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(samplerate, 16, 1, true, false);
-            UniversalAudioInputStream formattedStream = new UniversalAudioInputStream(audioStream, audioFormat);
-            dispatcher = new AudioDispatcher(formattedStream, buffersize, overlap);
-        }
-    }
-
-    /**
      * @param xAxisSeconds number of seconds to show on x axis
      * @param yAxisHz number of hertz to show on the y axis
      */
-    public void startAnalyzer(int xAxisSeconds, int yAxisHz){
+    public void initDispatcher(int xAxisSeconds, int yAxisHz){
         double unit_time = (double) windowstep / samplerate;
         double unit_frequency = (double) samplerate / buffersize;
 
@@ -122,7 +109,17 @@ public class AudioAnalyzer {
         displayWidth = (int)(xAxisSeconds/unit_time);
         displayHeight = (int)(yAxisHz/unit_frequency);
         displayColors = new int[displayWidth*displayHeight];
+        if(audioStream == null){
+            dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100 / 2, buffersize, overlap);
+        } else {
+            TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(samplerate, 16, 1, true, false);
+            UniversalAudioInputStream formattedStream = new UniversalAudioInputStream(audioStream, audioFormat);
+            dispatcher = new AudioDispatcher(formattedStream, buffersize, overlap);
+        }
+    }
 
+
+    public void startAnalyzer(){
         dispatcher.addAudioProcessor(new BandPass(3010, 2990, 44100));
         dispatcher.addAudioProcessor(fftProcessor);
         Thread dispatchThread = new Thread(dispatcher);
@@ -132,6 +129,8 @@ public class AudioAnalyzer {
     public void stopAnalyzer(){
         dispatcher.stop();
     }
+
+    public boolean isStopped() { return dispatcher.isStopped(); }
 
     public Bitmap getSpectrogramBitmap(){
         return Bitmap.createBitmap(displayColors, displayWidth, displayHeight, Bitmap.Config.ARGB_8888);

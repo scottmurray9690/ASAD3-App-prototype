@@ -34,7 +34,7 @@ public class WifiConnectActivity extends AppCompatActivity {
     Button btn_search;
     WifiReceiver receiverWifi;
     boolean locationPermission;
-
+    IntentFilter intentFilter;
     public static final String TAG = "WifiConnAct";
 
     @Override
@@ -45,7 +45,7 @@ public class WifiConnectActivity extends AppCompatActivity {
         initOnClicks();
         getLocationPermission();
         receiverWifi = new WifiReceiver(wifiManager, wifiList);
-        IntentFilter intentFilter = new IntentFilter();
+        intentFilter = new IntentFilter();
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         registerReceiver(receiverWifi, intentFilter);
         wifiManager.startScan();
@@ -100,8 +100,6 @@ public class WifiConnectActivity extends AppCompatActivity {
     protected void onPostResume() {
         super.onPostResume();
         receiverWifi = new WifiReceiver(wifiManager, wifiList);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         registerReceiver(receiverWifi, intentFilter);
         wifiManager.startScan();
     }
