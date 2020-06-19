@@ -16,6 +16,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import be.tarsos.dsp.io.android.AndroidFFMPEGLocator;
 
@@ -87,9 +88,6 @@ public class CommunicationActivity extends AppCompatActivity {
         new Thread() {
             public void run() {
                         try {
-                            if(audioAnalyzer!= null && audioAnalyzer.isFinished()) {
-                                break;
-                            }
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -131,28 +129,41 @@ public class CommunicationActivity extends AppCompatActivity {
 
     private class SendReceive extends Thread {
         private Socket socket;
-        private InputStream audioIn;
+        private InputStream inputStream;
         private OutputStream outputStream;
 
         public SendReceive(Socket socket) {
             this.socket = socket;
             try {
-                audioIn = new BufferedInputStream(socket.getInputStream());
+
+                inputStream = new BufferedInputStream(socket.getInputStream());
                 outputStream = socket.getOutputStream();
                 int buffersize = 1024;
-                audioAnalyzer = new AudioAnalyzer(audioIn, 44100, buffersize, buffersize * 3 / 4);
+                audioAnalyzer = new AudioAnalyzer(inputStream, 44100, buffersize, buffersize * 3 / 4);
+                audioAnalyzer.initDispatcher(5, 10000);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
+
         @Override
         public void run() {
-            // Receive audio files from the server
-
-            audioAnalyzer.initDispatcher(5, 10000);
-            audioAnalyzer.startAnalyzer();
-            drawSpectrogram();
+            byte [] buf = new byte[5]; //used to detect the "START" command
+            while (true) {
+                // Receive audio files from the server
+                if(audioAnalyzer.isStopped()){
+                    try {
+                        inputStream.read(buf, 0, 5);
+                        if (new String(buf, 0, buf.length).equals("START")) {
+                            audioAnalyzer.startAnalyzer();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                drawSpectrogram();
+            }
         }
 
         // Send commands to the server

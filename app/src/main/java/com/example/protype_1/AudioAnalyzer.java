@@ -25,6 +25,7 @@ public class AudioAnalyzer {
     private int buffersize;
     private int overlap;
     private int windowstep;
+    private int xIndex;
 
     private double maxAmp;
     private double minAmp;
@@ -59,6 +60,8 @@ public class AudioAnalyzer {
         maxAmp = Double.MIN_VALUE;
         minAmp = Double.MAX_VALUE;
 
+        xIndex = 0;
+
         final int fBufferSize = buffersize;
         fftProcessor = new AudioProcessor() {
             FFT fft = new FFT(fBufferSize*2, new HammingWindow());
@@ -66,6 +69,7 @@ public class AudioAnalyzer {
             @Override
             public boolean process(AudioEvent audioEvent) {
                 final int i = ((int) (audioEvent.getSamplesProcessed() - audioEvent.getBufferSize()) / windowstep) % maxSamplesHeld; // Current index of data
+                xIndex = (xIndex+i)%maxSamplesHeld;
 
                 if(i >= 0) {
                     float[] audioFloatBuffer = audioEvent.getFloatBuffer();
@@ -78,10 +82,10 @@ public class AudioAnalyzer {
                     double[] normalized_amps = normalize(amplitudes); //turn amplitudes into doubles and normalize
 
                     // Fill in the spectrogram data with normalized amplitudes
-                    System.arraycopy(normalized_amps, 0, spectrogram[i], 0, spectrogram[0].length);
+                    System.arraycopy(normalized_amps, 0, spectrogram[xIndex], 0, spectrogram[0].length);
                     for (int j=0; j < displayHeight; j++) {
-                        int c = getColor(spectrogram[i][j]);
-                        int x = i % displayWidth;
+                        int c = getColor(spectrogram[xIndex][j]);
+                        int x = xIndex % displayWidth;
                         displayColors[x + displayWidth * (displayHeight - 1 - j)] = c;
                     }
                 }
@@ -89,7 +93,6 @@ public class AudioAnalyzer {
             }
             @Override
             public void processingFinished() {
-                finished = true;
             }
         };
     }
@@ -99,6 +102,7 @@ public class AudioAnalyzer {
      * @param yAxisHz number of hertz to show on the y axis
      */
     public void initDispatcher(int xAxisSeconds, int yAxisHz){
+        //Setup Graphing stuff
         double unit_time = (double) windowstep / samplerate;
         double unit_frequency = (double) samplerate / buffersize;
 
@@ -109,6 +113,8 @@ public class AudioAnalyzer {
         displayWidth = (int)(xAxisSeconds/unit_time);
         displayHeight = (int)(yAxisHz/unit_frequency);
         displayColors = new int[displayWidth*displayHeight];
+        //End setup graphing stuff
+        //setup dispatcher
         if(audioStream == null){
             dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100 / 2, buffersize, overlap);
         } else {
@@ -116,12 +122,14 @@ public class AudioAnalyzer {
             UniversalAudioInputStream formattedStream = new UniversalAudioInputStream(audioStream, audioFormat);
             dispatcher = new AudioDispatcher(formattedStream, buffersize, overlap);
         }
+
+        dispatcher.addAudioProcessor(new BandPass(3010, 2990, 44100));
+        dispatcher.addAudioProcessor(fftProcessor);
     }
 
 
     public void startAnalyzer(){
-        dispatcher.addAudioProcessor(new BandPass(3010, 2990, 44100));
-        dispatcher.addAudioProcessor(fftProcessor);
+
         Thread dispatchThread = new Thread(dispatcher);
         dispatchThread.start();
     }
