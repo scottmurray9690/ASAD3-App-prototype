@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,6 +17,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import be.tarsos.dsp.io.android.AndroidFFMPEGLocator;
@@ -138,7 +140,7 @@ public class CommunicationActivity extends AppCompatActivity {
             this.socket = socket;
             try {
 
-                inputStream = new BufferedInputStream(socket.getInputStream());
+                inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
                 int buffersize = 1024;
                 audioAnalyzer = new AudioAnalyzer(44100, buffersize, buffersize * 3 / 4, spectrogramHelper);
@@ -150,19 +152,32 @@ public class CommunicationActivity extends AppCompatActivity {
 
         @Override
         public void run() {
-            byte [] buf = new byte[5]; //used to detect the "START" command
+            byte [] header_buffer = new byte[44]; //used to detect the start of a file
+            byte [] read_buffer = new byte[1024];
+            byte[] audioByteArray;
             while (true) {
-                // Receive audio files from the server
-                    try {
-                        inputStream.read(buf, 0, 5);
-                        if (new String(buf, 0, buf.length).equals("START")) {
-                            audioAnalyzer.startAnalyzer();
+                try {
+                    // read the incoming file into a byte array
+                    if(inputStream.read(header_buffer) == 44){
+                        ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer,40,44));
+                        int size = wrappedSize.getInt();
+                         audioByteArray = new byte[size+44];
+                        System.arraycopy(header_buffer,0,audioByteArray,0,44); // add the header to the audio byte array
+                        int pointer = 44;
+                        while(inputStream.read(read_buffer) != -1) {
+                            System.arraycopy(read_buffer,0,audioByteArray,pointer,1024);
+                            pointer += 1024;
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        ByteArrayInputStream audioInputStream = new ByteArrayInputStream(audioByteArray);
+                        audioAnalyzer.initDispatcher(audioInputStream);
+                        audioAnalyzer.startAnalyzer();
                     }
 
-                drawSpectrogram();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                // Receive audio files from the server
+
             }
         }
 
