@@ -26,6 +26,7 @@ public class CommunicationActivity extends AppCompatActivity {
     Button btn_reset;
     TextView message;
 
+    SpectrogramHelper spectrogramHelper;
     AudioAnalyzer audioAnalyzer;
     SendReceive sendReceive;
     ClientClass clientClass;
@@ -55,6 +56,7 @@ public class CommunicationActivity extends AppCompatActivity {
         btn_reset = findViewById(R.id.btn_reset);
         btn_startstop = findViewById(R.id.btn_startstop);
         message = findViewById(R.id.textView);
+        spectrogramHelper = new SpectrogramHelper(20*44100/256, 1024);
     }
 
     private void initOnClicks() {
@@ -92,7 +94,7 @@ public class CommunicationActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     if (audioAnalyzer != null) {
-                                        spectrogram.setImageBitmap(audioAnalyzer.getSpectrogramBitmap());
+                                        spectrogram.setImageBitmap(spectrogramHelper.getBitmap());
                                     }
                                 }
                             });
@@ -139,8 +141,7 @@ public class CommunicationActivity extends AppCompatActivity {
                 inputStream = new BufferedInputStream(socket.getInputStream());
                 outputStream = socket.getOutputStream();
                 int buffersize = 1024;
-                audioAnalyzer = new AudioAnalyzer(inputStream, 44100, buffersize, buffersize * 3 / 4);
-                audioAnalyzer.initDispatcher(5, 10000);
+                audioAnalyzer = new AudioAnalyzer(44100, buffersize, buffersize * 3 / 4, spectrogramHelper);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -152,7 +153,6 @@ public class CommunicationActivity extends AppCompatActivity {
             byte [] buf = new byte[5]; //used to detect the "START" command
             while (true) {
                 // Receive audio files from the server
-                if(audioAnalyzer.isStopped()){
                     try {
                         inputStream.read(buf, 0, 5);
                         if (new String(buf, 0, buf.length).equals("START")) {
@@ -161,7 +161,7 @@ public class CommunicationActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+
                 drawSpectrogram();
             }
         }
