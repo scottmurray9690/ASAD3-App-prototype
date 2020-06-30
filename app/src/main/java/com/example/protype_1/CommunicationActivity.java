@@ -1,5 +1,7 @@
 package com.example.protype_1;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import be.tarsos.dsp.io.android.AndroidFFMPEGLocator;
@@ -34,7 +38,7 @@ public class CommunicationActivity extends AppCompatActivity {
     ClientClass clientClass;
 
     boolean recording;
-    private final String TAG = "CommunicationActivity";
+    private final String TAG = "CommAct";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,46 +69,48 @@ public class CommunicationActivity extends AppCompatActivity {
         btn_startstop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sendReceive != null) {
                     if(!recording) {
                         recording = true;
                         btn_startstop.setText("STOP");
+                        sendReceive = new SendReceive(clientClass.getSocket());
+                        sendReceive.start();
                         sendReceive.write("STARTRECORD".getBytes());
-
                     } else {
                         recording = false;
                         btn_startstop.setText("START");
                         sendReceive.write("STOPRECORD".getBytes());
                     }
                 }
-            }
         });
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                drawSpectrogram();
             }
         });
-
     }
 
     private void drawSpectrogram() {
         new Thread() {
             public void run() {
-                        try {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (audioAnalyzer != null) {
-                                        spectrogram.setImageBitmap(spectrogramHelper.getBitmap());
-                                    }
-                                }
-                            });
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                while (recording) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            if (audioAnalyzer != null) {
+                                Log.i(TAG, "Drawing Spectrogram to ImageView");
+                                spectrogram.setImageBitmap(spectrogramHelper.getBitmap());
+                            }
                         }
+                    });
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                }
+            }
         }.start();
     }
 
@@ -117,14 +123,17 @@ public class CommunicationActivity extends AppCompatActivity {
             message.setText("socket created");
         }
 
+        public Socket getSocket() {
+            return socket;
+        }
+
         @Override
         public void run() {
             try {
                 message.setText("Attempting to connect to "+hostAddress+":8888...");
                 socket.connect(new InetSocketAddress(hostAddress,8888), 500);
                 message.setText("Connected to "+hostAddress+":8888.");
-                sendReceive = new SendReceive(socket);
-                sendReceive.start();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -139,7 +148,6 @@ public class CommunicationActivity extends AppCompatActivity {
         public SendReceive(Socket socket) {
             this.socket = socket;
             try {
-
                 inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
                 int buffersize = 1024;
@@ -150,25 +158,33 @@ public class CommunicationActivity extends AppCompatActivity {
         }
 
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void run() {
             byte [] header_buffer = new byte[44]; //used to detect the start of a file
-            byte [] read_buffer = new byte[1024];
             byte[] audioByteArray;
-            while (true) {
+            int countChocula = 0;
+            while (recording) {
                 try {
                     // read the incoming file into a byte array
                     if(inputStream.read(header_buffer) == 44){
-                        ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer,40,44));
-                        int size = wrappedSize.getInt();
-                         audioByteArray = new byte[size+44];
+                        String debug_RIFF = new String(Arrays.copyOfRange(header_buffer,0,4), StandardCharsets.UTF_8);
+                        Log.d(TAG,"Should be RIFF: " + debug_RIFF);
+
+                        ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer,40,44)).order(ByteOrder.LITTLE_ENDIAN);
+                        int size = wrappedSize.getInt() + 44;
+                        audioByteArray = new byte[size];
                         System.arraycopy(header_buffer,0,audioByteArray,0,44); // add the header to the audio byte array
                         int pointer = 44;
-                        while(inputStream.read(read_buffer) != -1) {
-                            System.arraycopy(read_buffer,0,audioByteArray,pointer,1024);
-                            pointer += 1024;
+                        Log.i(TAG,"Ready to read file #"+countChocula+ ", size: "+size);
+                        while( pointer < size) {
+                            // Log.i(TAG, "Read "+pointer+ "/"+size+" bytes");
+                            int count = inputStream.read(audioByteArray, pointer, size-pointer);
+                            pointer += count;
                         }
-                        ByteArrayInputStream audioInputStream = new ByteArrayInputStream(audioByteArray);
+//                        Log.i(TAG, "Starting AudioDispatcher from recieved file.");
+//                        wait();
+                        BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray) );
                         audioAnalyzer.initDispatcher(audioInputStream);
                         audioAnalyzer.startAnalyzer();
                     }
@@ -194,8 +210,6 @@ public class CommunicationActivity extends AppCompatActivity {
                         }
                     }
                 }).start();
-
-
             }
         }
     }

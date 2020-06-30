@@ -31,7 +31,7 @@ public class AudioAnalyzer {
     private AudioProcessor fftProcessor;
 
     /**
-     * @param samplerate samplerate of audio
+     * @param samplerate sample rate of audio
      * @param buffersize The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
      * @param overlap How much consecutive buffers overlap (in samples). Half of the AudioBufferSize is common.
      */
@@ -79,7 +79,7 @@ public class AudioAnalyzer {
         if(audioStream == null){
             dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100 / 2, buffersize, overlap);
         } else {
-            TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(samplerate, 16, 1, true, false);
+            TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(samplerate, 16, 2, true, false);
             UniversalAudioInputStream formattedStream = new UniversalAudioInputStream(audioStream, audioFormat);
             dispatcher = new AudioDispatcher(formattedStream, buffersize, overlap);
         }
@@ -90,7 +90,6 @@ public class AudioAnalyzer {
 
 
     public void startAnalyzer(){
-
         Thread dispatchThread = new Thread(dispatcher);
         dispatchThread.start();
     }
