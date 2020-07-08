@@ -2,6 +2,7 @@ package com.example.protype_1;
 
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.InputStream;
 
@@ -17,6 +18,8 @@ import be.tarsos.dsp.util.fft.HammingWindow;
 
 public class AudioAnalyzer {
 
+    public static String TAG = "AudioAnalyze";
+
     private AudioDispatcher dispatcher;
 
     private int samplerate; // possibly unnecessary
@@ -27,19 +30,22 @@ public class AudioAnalyzer {
     private double minAmp;
 
     private SpectrogramHelper spectrogramHelper;
+    private SNRHelper snrHelper;
 
     private AudioProcessor fftProcessor;
+
 
     /**
      * @param samplerate sample rate of audio
      * @param buffersize The size of the buffer defines how much samples are processed in one step. Common values are 1024,2048.
      * @param overlap How much consecutive buffers overlap (in samples). Half of the AudioBufferSize is common.
      */
-    public AudioAnalyzer( int samplerate, int buffersize, int overlap, SpectrogramHelper mspectrogramHelper){
+    public AudioAnalyzer( int samplerate, int buffersize, int overlap, SpectrogramHelper mspectrogramHelper, SNRHelper msnrHelper){
         this.samplerate = samplerate;
         this.buffersize = buffersize;
         this.overlap = overlap;
         this.spectrogramHelper = mspectrogramHelper;
+        snrHelper = msnrHelper;
 
         maxAmp = Double.MIN_VALUE;
         minAmp = Double.MAX_VALUE;
@@ -58,6 +64,13 @@ public class AudioAnalyzer {
                     fft.forwardTransform(transformBuffer);
                     fft.modulus(transformBuffer, amplitudes);
 
+                    //square each modulus to get psd
+                    double[] psd = new double[amplitudes.length];
+                    for(int i = 0; i<amplitudes.length; i++) {
+                        psd[i] = Math.pow(amplitudes[i], 2);
+                    }
+                    snrHelper.addColumn(psd);
+
                     double[] normalized_amps = normalize(amplitudes); //turn amplitudes into doubles and normalize
 
                     // Fill in the spectrogram data with normalized amplitudes
@@ -67,6 +80,7 @@ public class AudioAnalyzer {
             }
             @Override
             public void processingFinished() {
+                Log.i(TAG, "Finished processing a file");
             }
         };
     }

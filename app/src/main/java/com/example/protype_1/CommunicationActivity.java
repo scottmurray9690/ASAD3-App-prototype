@@ -30,9 +30,11 @@ public class CommunicationActivity extends AppCompatActivity {
     ImageView spectrogram;
     Button btn_startstop;
     Button btn_reset;
+    Button btn_state;
     TextView message;
 
     SpectrogramHelper spectrogramHelper;
+    SNRHelper snrHelper;
     AudioAnalyzer audioAnalyzer;
     SendReceive sendReceive;
     ClientClass clientClass;
@@ -61,8 +63,10 @@ public class CommunicationActivity extends AppCompatActivity {
         spectrogram = findViewById(R.id.spectrogram);
         btn_reset = findViewById(R.id.btn_reset);
         btn_startstop = findViewById(R.id.btn_startstop);
+        btn_state = findViewById(R.id.btn_state);
         message = findViewById(R.id.textView);
         spectrogramHelper = new SpectrogramHelper(20*44100/256, 1024);
+        snrHelper = new SNRHelper(5*44100/256, 1024);
     }
 
     private void initOnClicks() {
@@ -75,6 +79,7 @@ public class CommunicationActivity extends AppCompatActivity {
                         sendReceive = new SendReceive(clientClass.getSocket());
                         sendReceive.start();
                         sendReceive.write("STARTRECORD".getBytes());
+                        drawSpectrogram();
                     } else {
                         recording = false;
                         btn_startstop.setText("START");
@@ -85,7 +90,22 @@ public class CommunicationActivity extends AppCompatActivity {
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawSpectrogram();
+
+            }
+        });
+        btn_state.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (snrHelper.getState()){
+                    case SNRHelper.NOISE_STATE:
+                        snrHelper.setState(SNRHelper.SAMPLE_STATE);
+                        btn_state.setText("SAMPLE");
+                        break;
+                    case SNRHelper.SAMPLE_STATE:
+                        snrHelper.setState(SNRHelper.NOISE_STATE);
+                        btn_state.setText("NOISE");
+                        break;
+                }
             }
         });
     }
@@ -99,7 +119,7 @@ public class CommunicationActivity extends AppCompatActivity {
                         public void run() {
 
                             if (audioAnalyzer != null) {
-                                Log.i(TAG, "Drawing Spectrogram to ImageView");
+                            //    Log.i(TAG, "Drawing Spectrogram to ImageView");
                                 spectrogram.setImageBitmap(spectrogramHelper.getBitmap());
                             }
                         }
@@ -151,7 +171,7 @@ public class CommunicationActivity extends AppCompatActivity {
                 inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
                 int buffersize = 1024;
-                audioAnalyzer = new AudioAnalyzer(44100, buffersize, buffersize * 3 / 4, spectrogramHelper);
+                audioAnalyzer = new AudioAnalyzer(44100, buffersize, buffersize * 3 / 4, spectrogramHelper, snrHelper);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -176,7 +196,7 @@ public class CommunicationActivity extends AppCompatActivity {
                         audioByteArray = new byte[size];
                         System.arraycopy(header_buffer,0,audioByteArray,0,44); // add the header to the audio byte array
                         int pointer = 44;
-                        Log.i(TAG,"Ready to read file #"+countChocula+ ", size: "+size);
+                        Log.i(TAG,"Ready to read file #"+countChocula++ + ", size: "+size);
                         while( pointer < size) {
                             // Log.i(TAG, "Read "+pointer+ "/"+size+" bytes");
                             int count = inputStream.read(audioByteArray, pointer, size-pointer);

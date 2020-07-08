@@ -11,6 +11,8 @@ public class SpectrogramHelper {
     int[] colourArray;
     double[][] spectrogram;
     private int index;
+
+
     public SpectrogramHelper(int width, int height) {
         this.width = width;
         this.height = height;
