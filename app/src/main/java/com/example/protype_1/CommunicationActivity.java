@@ -32,6 +32,7 @@ public class CommunicationActivity extends AppCompatActivity {
     Button btn_reset;
     Button btn_state;
     TextView message;
+    TextView SNR_value;
 
     SpectrogramHelper spectrogramHelper;
     SNRHelper snrHelper;
@@ -65,6 +66,7 @@ public class CommunicationActivity extends AppCompatActivity {
         btn_startstop = findViewById(R.id.btn_startstop);
         btn_state = findViewById(R.id.btn_state);
         message = findViewById(R.id.textView);
+        SNR_value = findViewById(R.id.SNR_value);
         spectrogramHelper = new SpectrogramHelper(20*44100/256, 1024);
         snrHelper = new SNRHelper(5*44100/256, 1024);
     }
@@ -121,6 +123,7 @@ public class CommunicationActivity extends AppCompatActivity {
                             if (audioAnalyzer != null) {
                             //    Log.i(TAG, "Drawing Spectrogram to ImageView");
                                 spectrogram.setImageBitmap(spectrogramHelper.getBitmap());
+                                SNR_value.setText(""+snrHelper.getSNR(0,8000));
                             }
                         }
                     });
