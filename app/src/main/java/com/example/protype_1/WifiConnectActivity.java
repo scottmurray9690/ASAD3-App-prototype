@@ -161,7 +161,7 @@ public class WifiConnectActivity extends AppCompatActivity {
         @Override
         public void run() {
             boolean stop = false;
-            int timeout = 100;
+            int timeout = 300;
             int counter = 0;
             while(!stop) {
                 wifiInfo = wifiManager.getConnectionInfo();

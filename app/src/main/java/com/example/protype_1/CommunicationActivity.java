@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.support.annotation.RequiresApi;
@@ -141,14 +142,15 @@ public class CommunicationActivity extends AppCompatActivity {
                             if (audioAnalyzer != null) {
                             //    Log.i(TAG, "Drawing Spectrogram to ImageView");
                                 Bitmap spectrogramBMap = spectrogramHelper.getBitmap();
-                                Bitmap tempBitmap = Bitmap.createBitmap(spectrogramBMap.getWidth(), spectrogramBMap.getHeight(), Bitmap.Config.RGB_565);
+                                Bitmap tempBitmap = Bitmap.createBitmap(spectrogram.getWidth(), spectrogram.getHeight(), Bitmap.Config.RGB_565);
 
                                 Canvas tempCanvas = new Canvas(tempBitmap);
                                 Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                                paint.setTextSize(message.getTextSize());
                                 paint.setColor(Color.BLACK);
-                                tempCanvas.drawBitmap(spectrogramBMap, 0,0,null);
+                                tempCanvas.drawBitmap(spectrogramBMap, null, new RectF(0,0, tempCanvas.getWidth(), tempCanvas.getHeight()),null);
                                 for (int i=0;i<11;i++) {
-                                    tempCanvas.drawText(i+"kHz",0,(int) ((10-i)*(tempCanvas.getHeight())/10), paint);
+                                    tempCanvas.drawText("_ "+i+" kHz",0,(int) ((10-i)*(tempCanvas.getHeight())/10) + 1, paint);
                                 }
                                 spectrogram.setImageBitmap(tempBitmap);
 
