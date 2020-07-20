@@ -64,6 +64,14 @@ public class AudioAnalyzer {
                     fft.forwardTransform(transformBuffer);
                     fft.modulus(transformBuffer, amplitudes);
 
+                    if( audioEvent.getTimeStamp()== 0.9){
+                           Log.i(TAG,"its been 5 seconds i think: "+amplitudes);
+                    }
+
+                    if( audioEvent.getTimeStamp() == 12.0){
+                        Log.i(TAG,"its been 12 seconds i think: "+amplitudes);
+                    }
+
                     //square each modulus to get psd
                     double[] psd = new double[amplitudes.length];
                     for(int i = 0; i<amplitudes.length; i++) {

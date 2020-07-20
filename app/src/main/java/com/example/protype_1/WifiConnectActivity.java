@@ -106,7 +106,7 @@ public class WifiConnectActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        //unregisterReceiver(receiverWifi);
+        unregisterReceiver(receiverWifi);
         super.onPause();
     }
 
@@ -161,7 +161,7 @@ public class WifiConnectActivity extends AppCompatActivity {
         @Override
         public void run() {
             boolean stop = false;
-            int timeout = 300;
+            int timeout = 100;
             int counter = 0;
             while(!stop) {
                 wifiInfo = wifiManager.getConnectionInfo();
