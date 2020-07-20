@@ -27,6 +27,14 @@ public class SpectrogramHelper {
             colourArray[index % DISPLAY_WIDTH + DISPLAY_WIDTH*(DISPLAY_HEIGHT - 1 - i)] = c;
         }
     }
+    public void setColours(){
+        for(int i=0; i<DISPLAY_WIDTH;i++) {
+            for(int j=0; j<DISPLAY_HEIGHT; j++) {
+                int c = getColor(spectrogram[(index+i)%DISPLAY_WIDTH][j]);
+                colourArray[i + DISPLAY_WIDTH*(DISPLAY_HEIGHT-1-j)] = c;
+            }
+        }
+    }
     public void addColumn(double[] amplitudes) {
         System.arraycopy(amplitudes, 0, spectrogram[index], 0, height);
         setColumnColours(amplitudes);
@@ -43,6 +51,8 @@ public class SpectrogramHelper {
     }
 
     public Bitmap getBitmap(){
+       //setColours();
+
         return Bitmap.createBitmap(colourArray, DISPLAY_WIDTH, DISPLAY_HEIGHT, Bitmap.Config.ARGB_8888);
     }
 }
