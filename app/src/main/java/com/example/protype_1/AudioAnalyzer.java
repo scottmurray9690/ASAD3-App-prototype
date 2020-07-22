@@ -75,7 +75,7 @@ public class AudioAnalyzer {
                     //square each modulus to get psd
                     double[] psd = new double[amplitudes.length];
                     for(int i = 0; i<amplitudes.length; i++) {
-                        psd[i] = Math.pow(amplitudes[i], 2);
+                        psd[i] = (double)amplitudes[i];//Math.pow(amplitudes[i], 2);
                     }
                     snrHelper.addColumn(psd);
 
@@ -88,7 +88,7 @@ public class AudioAnalyzer {
             }
             @Override
             public void processingFinished() {
-                Log.i(TAG, "Finished processing a file");
+            //    Log.i(TAG, "Finished processing a file");
             }
         };
     }

@@ -106,7 +106,7 @@ public class WifiConnectActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        unregisterReceiver(receiverWifi);
+        //unregisterReceiver(receiverWifi);
         super.onPause();
     }
 

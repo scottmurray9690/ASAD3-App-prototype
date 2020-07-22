@@ -226,14 +226,14 @@ public class CommunicationActivity extends AppCompatActivity {
                     // read the incoming file into a byte array
                     if(inputStream.read(header_buffer) == 44){
                         String debug_RIFF = new String(Arrays.copyOfRange(header_buffer,0,4), StandardCharsets.UTF_8);
-                        Log.d(TAG,"Should be RIFF: " + debug_RIFF);
+                     //   Log.d(TAG,"Should be RIFF: " + debug_RIFF);
 
                         ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer,40,44)).order(ByteOrder.LITTLE_ENDIAN);
                         int size = wrappedSize.getInt() + 44;
                         audioByteArray = new byte[size];
                         System.arraycopy(header_buffer,0,audioByteArray,0,44); // add the header to the audio byte array
                         int pointer = 44;
-                        Log.i(TAG,"Ready to read file #"+countChocula++ + ", size: "+size);
+                        //Log.i(TAG,"Ready to read file #"+countChocula++ + ", size: "+size);
                         while( pointer < size) {
                             // Log.i(TAG, "Read "+pointer+ "/"+size+" bytes");
                             int count = inputStream.read(audioByteArray, pointer, size-pointer);

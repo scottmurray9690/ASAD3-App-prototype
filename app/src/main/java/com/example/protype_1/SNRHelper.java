@@ -1,8 +1,17 @@
 package com.example.protype_1;
 
+import android.util.Log;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.Buffer;
 import java.util.ArrayList;
 
 public class SNRHelper {
+    public static final String TAG = "SNRHelper";
+
     private double[][] noiseSNR;
     private double[][] sampleSNR;
 
@@ -12,6 +21,17 @@ public class SNRHelper {
     private int state;
     private int index;
 
+    // Debug stuff
+    String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+    String fileName = "psdAnalysis.csv";
+    String filePath = baseDir + File.separator + fileName;
+    File file = new File(filePath);
+    BufferedWriter writer;
+    private boolean fileiswritten;
+
+    // End Debug stuff
+
+
     private boolean pauseRecording;
     public SNRHelper(int width, int height) {
         state = SAMPLE_STATE;
@@ -19,6 +39,16 @@ public class SNRHelper {
         noiseSNR = new double[width][height];
         sampleSNR = new double[width][height];
         pauseRecording = false;
+
+        // Debug stuff
+        try {
+            Log.i(TAG, "initializing file writer, is file ready? "+file.exists());
+            writer = new BufferedWriter(new FileWriter(filePath,false));
+            writer.write("Noise PSD,Sample PSD\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // End Debug stuff
     }
 
     public void addColumn(double[] data) {
@@ -28,11 +58,26 @@ public class SNRHelper {
         switch (state){
             case NOISE_STATE:
                 System.arraycopy(data, 0, noiseSNR[index], 0, data.length);
+
                 index++;
                 index = index%noiseSNR.length;
                 break;
             case SAMPLE_STATE:
                 System.arraycopy(data, 0, sampleSNR[index], 0, data.length);
+                if(!fileiswritten && index == noiseSNR.length/2) {
+                    Log.i(TAG,"Writing to file "+filePath);
+                    fileiswritten=true;
+
+                        try {
+                            for (int i=0; i < sampleSNR[index].length; i++) {
+                                writer.write(noiseSNR[index][i] + "," + sampleSNR[index][i] + "\n");
+                            }
+                            writer.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                }
                 index++;
                 index = index%sampleSNR.length;
                 break;
