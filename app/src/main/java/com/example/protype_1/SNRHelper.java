@@ -21,16 +21,6 @@ public class SNRHelper {
     private int state;
     private int index;
 
-    // Debug stuff
-    String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-    String fileName = "psdAnalysis.csv";
-    String filePath = baseDir + File.separator + fileName;
-    File file = new File(filePath);
-    BufferedWriter writer;
-    private boolean fileiswritten;
-
-    // End Debug stuff
-
 
     private boolean pauseRecording;
     public SNRHelper(int width, int height) {
@@ -40,15 +30,6 @@ public class SNRHelper {
         sampleSNR = new double[width][height];
         pauseRecording = false;
 
-        // Debug stuff
-        try {
-            Log.i(TAG, "initializing file writer, is file ready? "+file.exists());
-            writer = new BufferedWriter(new FileWriter(filePath,false));
-            writer.write("Noise PSD,Sample PSD\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // End Debug stuff
     }
 
     public void addColumn(double[] data) {
@@ -64,20 +45,6 @@ public class SNRHelper {
                 break;
             case SAMPLE_STATE:
                 System.arraycopy(data, 0, sampleSNR[index], 0, data.length);
-                if(!fileiswritten && index == noiseSNR.length/2) {
-                    Log.i(TAG,"Writing to file "+filePath);
-                    fileiswritten=true;
-
-                        try {
-                            for (int i=0; i < sampleSNR[index].length; i++) {
-                                writer.write(noiseSNR[index][i] + "," + sampleSNR[index][i] + "\n");
-                            }
-                            writer.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                }
                 index++;
                 index = index%sampleSNR.length;
                 break;
@@ -85,9 +52,10 @@ public class SNRHelper {
     }
 
     public double getSNR(int lowfreq, int highfreq){
-
-        int lowIndex = (int) (lowfreq*1024/44100);  //(int)(10000*1024/44100); // and 10kHz on the y axis
-        int highIndex = (int) (highfreq*1024/44100);
+        int lowIndex;
+        int binFreq = (int) 512/22050;
+        lowIndex = lowfreq*binFreq;  //(int)(10000*1024/44100); // and 10kHz on the y axis
+        int highIndex = highfreq*binFreq;
         if (lowIndex >= 0 && highIndex < noiseSNR.length) {
             pauseRecording = true;
             double noisePSDmean = 0;

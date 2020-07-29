@@ -12,10 +12,15 @@ public class SpectrogramHelper {
     double[][] spectrogram;
     private int index;
 
+    private double maxAmp;
+    private double minAmp;
+
 
     public SpectrogramHelper(int width, int height) {
         this.width = width;
         this.height = height;
+        maxAmp = Double.MIN_VALUE;
+        minAmp = Double.MAX_VALUE;
 
         colourArray = new int[DISPLAY_HEIGHT*DISPLAY_WIDTH];
         spectrogram = new double[width][height];
@@ -35,9 +40,10 @@ public class SpectrogramHelper {
             }
         }
     }
-    public void addColumn(double[] amplitudes) {
-        System.arraycopy(amplitudes, 0, spectrogram[index], 0, height);
-        setColumnColours(amplitudes);
+    public void addColumn(float[] amplitudes) {
+        double[] normalized_amps = normalize(amplitudes); //turn amplitudes into doubles and normalize
+        System.arraycopy(normalized_amps, 0, spectrogram[index], 0, height);
+        setColumnColours(normalized_amps);
         index = (index+1)%width;
     }
 
@@ -54,5 +60,32 @@ public class SpectrogramHelper {
        //setColours();
 
         return Bitmap.createBitmap(colourArray, DISPLAY_WIDTH, DISPLAY_HEIGHT, Bitmap.Config.ARGB_8888);
+    }
+
+    private double[] normalize(float[] in) {
+        // get max and min amplitudes
+        double[] out = new double[in.length];
+        for (int x = 0; x < in.length; x++) {
+            if (in[x] > maxAmp) {
+                maxAmp = in[x];
+            } else if (in[x] < minAmp) {
+                minAmp = in[x];
+            }
+        }
+        // avoiding divided by zero
+        double minValidAmp = 0.00000000001F;
+        if (minAmp == 0) {
+            minAmp = minValidAmp;
+        }
+        double diff = Math.log10(maxAmp / minAmp); // perceptual difference
+        for (int x = 0; x < in.length; x++) {
+            if (in[x] < minValidAmp) {
+                out[x] = 0;
+            } else {
+                out[x] = (Math.log10(in[x] / minAmp)) / diff;
+            }
+        }
+        // end normalization
+        return out;
     }
 }

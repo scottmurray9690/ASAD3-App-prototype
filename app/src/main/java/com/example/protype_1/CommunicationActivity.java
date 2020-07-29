@@ -107,7 +107,7 @@ public class CommunicationActivity extends AppCompatActivity {
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                audioAnalyzer.fileWritten = false;
             }
         });
     }
@@ -155,7 +155,7 @@ public class CommunicationActivity extends AppCompatActivity {
                                 spectrogram.setImageBitmap(tempBitmap);
 
 
-                                SNR_value.setText("100-1k: "+df.format(snrHelper.getSNR(100,1000))+
+                                SNR_value.setText("40-1k: "+df.format(snrHelper.getSNR(44,1000))+
                                         "\n1k-4k: "+df.format(snrHelper.getSNR(1000,4000))+
                                         "\n4k+: "+df.format(snrHelper.getSNR(4000,10000)));
                             }
