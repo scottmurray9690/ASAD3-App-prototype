@@ -4,17 +4,25 @@ import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.opencsv.CSVWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.filters.BandPass;
+import be.tarsos.dsp.filters.HighPass;
+import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.io.UniversalAudioInputStream;
 import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 import be.tarsos.dsp.util.fft.FFT;
 import be.tarsos.dsp.util.fft.HammingWindow;
+import be.tarsos.dsp.util.fft.HannWindow;
 
 public class AudioAnalyzer {
 
@@ -26,8 +34,16 @@ public class AudioAnalyzer {
     private int buffersize;
     private int overlap;
 
-    private double maxAmp;
-    private double minAmp;
+    //debug stuff
+    String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+    String fileName = "fftAnalysis.csv";
+    String filePath = baseDir + File.separator + fileName;
+    File file = new File(filePath);
+    CSVWriter writer;
+    boolean fileWritten;
+    //end debug stuff
+
+
 
     private SpectrogramHelper spectrogramHelper;
     private SNRHelper snrHelper;
@@ -46,13 +62,12 @@ public class AudioAnalyzer {
         this.overlap = overlap;
         this.spectrogramHelper = mspectrogramHelper;
         snrHelper = msnrHelper;
+        fileWritten = false;
 
-        maxAmp = Double.MIN_VALUE;
-        minAmp = Double.MAX_VALUE;
 
         final int fBufferSize = buffersize;
         fftProcessor = new AudioProcessor() {
-            FFT fft = new FFT(fBufferSize*2, new HammingWindow());
+            FFT fft = new FFT(fBufferSize*2, new HannWindow());
             float[] amplitudes = new float[fBufferSize];
             @Override
             public boolean process(AudioEvent audioEvent) {
@@ -62,33 +77,46 @@ public class AudioAnalyzer {
                     System.arraycopy(audioFloatBuffer, 0, transformBuffer, 0, audioFloatBuffer.length);
 
                     fft.forwardTransform(transformBuffer);
+
                     fft.modulus(transformBuffer, amplitudes);
+                    //debug stuff will remove
+                    if(!fileWritten){
+                        try {
+                            fileWritten= true;
+                            writer = new CSVWriter(new FileWriter(file));
+                            writer.writeNext(new String[]{"dft(sound)", "modulus"});
+                            for (int i=0;i<transformBuffer.length;i++) {
+                                if(i<amplitudes.length){
+                                    writer.writeNext(new String[]{String.valueOf(transformBuffer[i]), String.valueOf(amplitudes[i])});
+                                } else {
+                                    writer.writeNext(new String[]{String.valueOf(transformBuffer[i]),"0"});
+                                }
+                            }
+                            Log.i(TAG, "wrote to file: "+fileName);
+                            writer.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                    if( audioEvent.getTimeStamp()== 0.9){
-                           Log.i(TAG,"its been 5 seconds i think: "+amplitudes);
                     }
 
-                    if( audioEvent.getTimeStamp() == 12.0){
-                        Log.i(TAG,"its been 12 seconds i think: "+amplitudes);
-                    }
 
                     //square each modulus to get psd
                     double[] psd = new double[amplitudes.length];
                     for(int i = 0; i<amplitudes.length; i++) {
-                        psd[i] = (double)amplitudes[i];//Math.pow(amplitudes[i], 2);
+                        psd[i] = Math.pow(amplitudes[i], 2);
                     }
                     snrHelper.addColumn(psd);
 
-                    double[] normalized_amps = normalize(amplitudes); //turn amplitudes into doubles and normalize
+                    // Fill in the spectrogram data with amplitudes
+                    spectrogramHelper.addColumn(amplitudes);
 
-                    // Fill in the spectrogram data with normalized amplitudes
-                    spectrogramHelper.addColumn(normalized_amps);
                 }
                 return true;
             }
             @Override
             public void processingFinished() {
-            //    Log.i(TAG, "Finished processing a file");
+            //    Log.i(TAG, "Finished processing a file");.
             }
         };
     }
@@ -105,8 +133,9 @@ public class AudioAnalyzer {
             UniversalAudioInputStream formattedStream = new UniversalAudioInputStream(audioStream, audioFormat);
             dispatcher = new AudioDispatcher(formattedStream, buffersize, overlap);
         }
-
-        dispatcher.addAudioProcessor(new BandPass(3010, 2990, 44100));
+// for 10-3000Hz midpoint = (3000+10)/2, bandwidth = (3000-10)
+        dispatcher.addAudioProcessor(new BandPass(1505, 2990, 44100));
+       // dispatcher.addAudioProcessor(new HighPass(20,22050));
         dispatcher.addAudioProcessor(fftProcessor);
     }
 
@@ -118,30 +147,5 @@ public class AudioAnalyzer {
 
     public boolean isStopped() { return dispatcher.isStopped(); }
 
-    private double[] normalize(float[] in) {
-        // get max and min amplitudes
-        double[] out = new double[in.length];
-        for (int x = 0; x < in.length; x++) {
-            if (in[x] > maxAmp) {
-                maxAmp = in[x];
-            } else if (in[x] < minAmp) {
-                minAmp = in[x];
-            }
-        }
-        // avoiding divided by zero
-        double minValidAmp = 0.00000000001F;
-        if (minAmp == 0) {
-            minAmp = minValidAmp;
-        }
-        double diff = Math.log10(maxAmp / minAmp); // perceptual difference
-        for (int x = 0; x < in.length; x++) {
-            if (in[x] < minValidAmp) {
-                out[x] = 0;
-            } else {
-                out[x] = (Math.log10(in[x] / minAmp)) / diff;
-            }
-        }
-        // end normalization
-        return out;
-    }
+
 }
