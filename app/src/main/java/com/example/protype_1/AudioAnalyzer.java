@@ -80,25 +80,25 @@ public class AudioAnalyzer {
 
                     fft.modulus(transformBuffer, amplitudes);
                     //debug stuff will remove
-                    if(!fileWritten){
-                        try {
-                            fileWritten= true;
-                            writer = new CSVWriter(new FileWriter(file));
-                            writer.writeNext(new String[]{"dft(sound)", "modulus"});
-                            for (int i=0;i<transformBuffer.length;i++) {
-                                if(i<amplitudes.length){
-                                    writer.writeNext(new String[]{String.valueOf(transformBuffer[i]), String.valueOf(amplitudes[i])});
-                                } else {
-                                    writer.writeNext(new String[]{String.valueOf(transformBuffer[i]),"0"});
-                                }
-                            }
-                            Log.i(TAG, "wrote to file: "+fileName);
-                            writer.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
+//                    if(!fileWritten){
+//                        try {
+//                            fileWritten= true;
+//                            writer = new CSVWriter(new FileWriter(file));
+//                            writer.writeNext(new String[]{"dft(sound)", "modulus"});
+//                            for (int i=0;i<transformBuffer.length;i++) {
+//                                if(i<amplitudes.length){
+//                                    writer.writeNext(new String[]{String.valueOf(transformBuffer[i]), String.valueOf(amplitudes[i])});
+//                                } else {
+//                                    writer.writeNext(new String[]{String.valueOf(transformBuffer[i]),"0"});
+//                                }
+//                            }
+//                            Log.i(TAG, "wrote to file: "+fileName);
+//                            writer.close();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                    }
 
 
                     //square each modulus to get psd
@@ -135,7 +135,7 @@ public class AudioAnalyzer {
         }
 // for 10-3000Hz midpoint = (3000+10)/2, bandwidth = (3000-10)
         dispatcher.addAudioProcessor(new BandPass(1505, 2990, 44100));
-       // dispatcher.addAudioProcessor(new HighPass(20,22050));
+        //dispatcher.addAudioProcessor(new BandPass(5000,10000, 44100));
         dispatcher.addAudioProcessor(fftProcessor);
     }
 

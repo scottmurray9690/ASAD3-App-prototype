@@ -50,8 +50,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginBottom="16dp"
         android:text="SNR: "
-        app:layout_constraintBottom_toBottomOf="@+id/lowFreqSNR"
+        app:layout_constraintBottom_toTopOf="@+id/btn_startstop"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
@@ -85,27 +86,28 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="8dp"
-        android:text="44Hz-1kHz:\t0.00"
-        app:layout_constraintBottom_toTopOf="@+id/midFreqSNR"
+        android:text="44Hz-1kHz: 0.000"
+        app:layout_constraintBaseline_toBaselineOf="@+id/SNR_label"
         app:layout_constraintStart_toEndOf="@+id/SNR_label" />
 
     <TextView
         android:id="@+id/midFreqSNR"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="1kHz-3kHz:\t0.00"
-        app:layout_constraintBottom_toTopOf="@+id/highFreqSNR"
-        app:layout_constraintStart_toStartOf="@+id/lowFreqSNR" />
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="1kHz-3kHz: 0.000"
+        app:layout_constraintBaseline_toBaselineOf="@+id/lowFreqSNR"
+        app:layout_constraintStart_toEndOf="@+id/lowFreqSNR" />
 
     <TextView
         android:id="@+id/highFreqSNR"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="3kHz-10kHz:\t0.00"
-        app:layout_constraintBottom_toTopOf="@+id/btn_startstop"
-        app:layout_constraintStart_toStartOf="@+id/midFreqSNR" />
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="3kHz-10kHz: 0.00"
+        app:layout_constraintBaseline_toBaselineOf="@+id/midFreqSNR"
+        app:layout_constraintStart_toEndOf="@+id/midFreqSNR" />
 
 </android.support.constraint.ConstraintLayout>

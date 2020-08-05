@@ -1,4 +1,4 @@
-package com.example.protype_1.old;
+package com.example.protype_1;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,7 +34,7 @@ public class Ins3Activity extends AppCompatActivity {
                 break;
 
             case "Next":
-                startActivity(new Intent(this, WifiConnectActivity.class));
+                startActivity(new Intent(this, CommunicationActivity.class));
                 break;
 
             case "Skip":

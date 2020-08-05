@@ -61,12 +61,12 @@
             android:name=".ScanActivity"
             android:label="Paired Devices"
             android:launchMode="singleTop"
-            android:parentActivityName=".old.Ins3Activity">
+            android:parentActivityName=".Ins3Activity">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".old.Ins3Activity" />
+                android:value=".Ins3Activity" />
         </activity>
         <activity
             android:name=".Ins1Activity"
@@ -91,7 +91,7 @@
                 android:value=".Ins1Activity" />
         </activity>
         <activity
-            android:name=".old.Ins3Activity"
+            android:name=".Ins3Activity"
             android:label="Instruction"
             android:launchMode="singleTop"
             android:parentActivityName=".Ins2Activity">

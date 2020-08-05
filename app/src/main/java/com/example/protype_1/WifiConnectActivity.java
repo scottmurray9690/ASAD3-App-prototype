@@ -37,8 +37,6 @@ public class WifiConnectActivity extends AppCompatActivity {
     IntentFilter intentFilter;
     public static final String TAG = "WifiConnAct";
 
-    Button btn_skip;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +63,6 @@ public class WifiConnectActivity extends AppCompatActivity {
         wifiList = findViewById(R.id.wifiNetworkListView);
         btn_search = findViewById(R.id.search);
         //debug
-        btn_skip = findViewById(R.id.skipButton);
 
     }
 
@@ -97,12 +94,6 @@ public class WifiConnectActivity extends AppCompatActivity {
 
                 ConnectionChecker connectionChecker = new ConnectionChecker("b8:27:eb:d8:1f:44");
                 runOnUiThread(connectionChecker);
-            }
-        });
-        btn_skip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCommunicationActivity();
             }
         });
     }

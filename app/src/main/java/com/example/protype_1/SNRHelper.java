@@ -38,13 +38,13 @@ public class SNRHelper {
         }
         switch (state){
             case NOISE_STATE:
-                System.arraycopy(data, 0, noiseSNR[index], 0, data.length);
+                System.arraycopy(data, 0, noiseSNR[index], 0, noiseSNR[index].length);
 
                 index++;
                 index = index%noiseSNR.length;
                 break;
             case SAMPLE_STATE:
-                System.arraycopy(data, 0, sampleSNR[index], 0, data.length);
+                System.arraycopy(data, 0, sampleSNR[index], 0, sampleSNR[index].length);
                 index++;
                 index = index%sampleSNR.length;
                 break;
@@ -53,9 +53,10 @@ public class SNRHelper {
 
     public double getSNR(int lowfreq, int highfreq){
         int lowIndex;
-        int binFreq = (int) 512/22050;
-        lowIndex = lowfreq*binFreq;  //(int)(10000*1024/44100); // and 10kHz on the y axis
-        int highIndex = highfreq*binFreq;
+        int highIndex;
+        double binFreq =  512.0/22050.0;
+        lowIndex =  (int)(lowfreq*binFreq);  //(int)(10000*1024/44100); // and 10kHz on the y axis
+        highIndex =  (int)(highfreq*binFreq);
         if (lowIndex >= 0 && highIndex < noiseSNR.length) {
             pauseRecording = true;
             double noisePSDmean = 0;
