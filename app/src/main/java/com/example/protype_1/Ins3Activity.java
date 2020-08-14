@@ -34,7 +34,7 @@ public class Ins3Activity extends AppCompatActivity {
                 break;
 
             case "Next":
-                startActivity(new Intent(this, CommunicationActivity.class));
+                startActivity(new Intent(this, SocketConnectActivity.class));
                 break;
 
             case "Skip":

@@ -23,7 +23,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CommunicationActivity"></activity>
+        <activity android:name=".SocketConnectActivity"></activity>
+        <activity android:name=".CommunicationActivity" />
         <activity android:name=".WifiConnectActivity" />
         <activity
             android:name=".MainActivity"

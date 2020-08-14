@@ -48,7 +48,7 @@ public class CommunicationActivity extends AppCompatActivity {
     SNRHelper snrHelper;
     AudioAnalyzer audioAnalyzer;
     SendReceive sendReceive;
-    ClientClass clientClass;
+    SocketHandler socketHandler;
 
     boolean recording;
     private final String TAG = "CommAct";
@@ -61,13 +61,6 @@ public class CommunicationActivity extends AppCompatActivity {
         initOnClicks();
 
         new AndroidFFMPEGLocator(this);
-        try {
-            clientClass = new ClientClass(InetAddress.getByName("192.168.50.1"));
-            clientClass.start();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void initWork() {
@@ -82,6 +75,7 @@ public class CommunicationActivity extends AppCompatActivity {
         spectrogramHelper = new SpectrogramHelper(20*44100/256, 512);
         snrHelper = new SNRHelper(5*44100/256, 512);
         stateText.setText("Hold your breath");
+        socketHandler = new SocketHandler();
     }
 
     private void initOnClicks() {
@@ -91,7 +85,7 @@ public class CommunicationActivity extends AppCompatActivity {
                     if(!recording) {
                         recording = true;
                         btn_startstop.setText("STOP");
-                        sendReceive = new SendReceive(clientClass.getSocket());
+                        sendReceive = new SendReceive(socketHandler.getSocket());
                         sendReceive.start();
                         sendReceive.write("STARTRECORD".getBytes());
                         drawSpectrogram();
@@ -181,31 +175,30 @@ public class CommunicationActivity extends AppCompatActivity {
 
     }
 
-    private class ClientClass extends Thread {
-        private Socket socket;
-
-        private String hostAddress;
-        public ClientClass(InetAddress hostAddress){
-            this.hostAddress = hostAddress.getHostAddress();
-            socket = new Socket();
-        }
-
-        public Socket getSocket() {
-            return socket;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Log.i(TAG,"Attempting to connect to "+hostAddress+":8888...");
-                socket.connect(new InetSocketAddress(hostAddress,8888), 500);
-                Log.i(TAG,"Connected to "+hostAddress+":8888.");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private class ClientClass extends Thread {
+//        private Socket socket;
+//
+//        private String hostAddress;
+//        public ClientClass(InetAddress hostAddress){
+//            this.hostAddress = hostAddress.getHostAddress();
+//            socket = new Socket();
+//        }
+//
+//        public Socket getSocket() {
+//            return socket;
+//        }
+//
+//        @Override
+//        public void run() {
+//            try {
+//                Log.i(TAG,"Attempting to connect to "+hostAddress+":8888...");
+//                socket.connect(new InetSocketAddress(hostAddress,8888), 500);
+//                Log.i(TAG,"Connected to "+hostAddress+":8888.");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private class SendReceive extends Thread {
         private Socket socket;
@@ -230,27 +223,24 @@ public class CommunicationActivity extends AppCompatActivity {
         public void run() {
             byte [] header_buffer = new byte[44]; //used to detect the start of a file
             byte[] audioByteArray;
-            int countChocula = 0;
             while (recording) {
                 try {
                     // read the incoming file into a byte array
                     if(inputStream.read(header_buffer) == 44){
-                        String debug_RIFF = new String(Arrays.copyOfRange(header_buffer,0,4), StandardCharsets.UTF_8);
-                     //   Log.d(TAG,"Should be RIFF: " + debug_RIFF);
-
+//                        String debug_RIFF = new String(Arrays.copyOfRange(header_buffer,0,4), StandardCharsets.UTF_8);
+//                        Log.d(TAG,"Should be RIFF: " + debug_RIFF);
                         ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer,40,44)).order(ByteOrder.LITTLE_ENDIAN);
                         int size = wrappedSize.getInt() + 44;
                         audioByteArray = new byte[size];
                         System.arraycopy(header_buffer,0,audioByteArray,0,44); // add the header to the audio byte array
                         int pointer = 44;
-                        //Log.i(TAG,"Ready to read file #"+countChocula++ + ", size: "+size);
+                        //Log.i(TAG,"Ready to read file of size: "+size);
                         while( pointer < size) {
                             // Log.i(TAG, "Read "+pointer+ "/"+size+" bytes");
                             int count = inputStream.read(audioByteArray, pointer, size-pointer);
                             pointer += count;
                         }
 //                        Log.i(TAG, "Starting AudioDispatcher from recieved file.");
-//                        wait();
                         BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray) );
                         audioAnalyzer.initDispatcher(audioInputStream);
                         audioAnalyzer.startAnalyzer();

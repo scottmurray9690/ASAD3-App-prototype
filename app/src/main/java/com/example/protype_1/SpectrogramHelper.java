@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 public class SpectrogramHelper {
-    final static int DISPLAY_WIDTH = (int)(5*44100/256); // this is messy, but it ensures the display shows 5s of data at a time ...
+    final static int DISPLAY_WIDTH = (int)(10*44100/256); // this is messy, but it ensures the display shows 10s of data at a time ...
     final static int DISPLAY_HEIGHT = (int)(10000*512/22050); // and 10kHz on the y axis
     int width;
     int height;
