@@ -6,6 +6,39 @@
     android:layout_height="match_parent"
     tools:context=".CommunicationActivity">
 
+    <TextView
+        android:id="@+id/adjustLabel"
+        android:layout_width="128dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Adjust Spectrogram Intensity:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:layout_constraintBottom_toBottomOf="@+id/adjustDownButton"
+        app:layout_constraintEnd_toStartOf="@+id/adjustUpButton"
+        app:layout_constraintTop_toTopOf="@+id/adjustUpButton"
+        app:layout_constraintVertical_bias="0.36" />
+
+    <ImageButton
+        android:id="@+id/adjustUpButton"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/lowFreqSNR"
+        app:srcCompat="@android:drawable/arrow_up_float" />
+
+    <ImageButton
+        android:id="@+id/adjustDownButton"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/adjustUpButton"
+        app:layout_constraintTop_toBottomOf="@+id/adjustUpButton"
+        app:srcCompat="@android:drawable/arrow_down_float" />
+
     <ImageView
         android:id="@+id/spectrogram"
         android:layout_width="0dp"
@@ -34,13 +67,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/btn_reset"
+        android:id="@+id/snrResetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Reset"
+        android:text="SNR Reset"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn_startstop" />
 
@@ -59,26 +92,28 @@
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:text="10"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_reset"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btn_reset" />
+        app:layout_constraintBottom_toBottomOf="@+id/snrResetButton"
+        app:layout_constraintStart_toEndOf="@+id/stateTextView"
+        app:layout_constraintTop_toTopOf="@+id/snrResetButton"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/stateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="4dp"
         android:text="Hold your breath"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/btn_reset"
-        app:layout_constraintEnd_toStartOf="@+id/timerTextView" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/snrResetButton"
+        app:layout_constraintStart_toStartOf="@+id/instructionsLabel" />
 
     <TextView
         android:id="@+id/lowFreqSNR"
@@ -109,5 +144,18 @@
         android:text="3kHz-10kHz: 0.00"
         app:layout_constraintBaseline_toBaselineOf="@+id/midFreqSNR"
         app:layout_constraintStart_toEndOf="@+id/midFreqSNR" />
+
+    <TextView
+        android:id="@+id/instructionsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="Instructions:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/stateTextView"
+        app:layout_constraintStart_toEndOf="@+id/snrResetButton" />
 
 </android.support.constraint.ConstraintLayout>

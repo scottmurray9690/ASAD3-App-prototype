@@ -23,9 +23,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SocketConnectActivity"></activity>
-        <activity android:name=".CommunicationActivity" />
-        <activity android:name=".WifiConnectActivity" />
+        <activity
+            android:name=".SocketConnectActivity"
+            android:label="Connecting">
+        </activity>
+        <activity
+            android:name=".CommunicationActivity"
+            android:label="Breath Analysis"
+            >
+        </activity>
+        <activity android:name=".WifiConnectActivity"
+            android:label="Instruction"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

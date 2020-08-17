@@ -148,7 +148,7 @@ public class WifiConnectActivity extends AppCompatActivity {
     public void startCommunicationActivity() {
         unregisterReceiver(receiverWifi);
 
-        Intent nextActivity = new Intent(this, CommunicationActivity.class);
+        Intent nextActivity = new Intent(this, SocketConnectActivity.class);
         startActivity(nextActivity);
     }
 

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,13 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -36,7 +33,9 @@ import be.tarsos.dsp.io.android.AndroidFFMPEGLocator;
 public class CommunicationActivity extends AppCompatActivity {
     ImageView spectrogram;
     Button btn_startstop;
-    Button btn_reset;
+    ImageButton btn_adj_up;
+    ImageButton btn_adj_down;
+    Button btn_snr_reset;
     TextView stateText;
     TextView timerText;
 
@@ -64,14 +63,16 @@ public class CommunicationActivity extends AppCompatActivity {
     }
 
     private void initWork() {
-        spectrogram = findViewById(R.id.spectrogram);
-        btn_reset = findViewById(R.id.btn_reset);
-        btn_startstop = findViewById(R.id.btn_startstop);
-        lowFreqSNR = findViewById(R.id.lowFreqSNR);
-        midFreqSNR = findViewById(R.id.midFreqSNR);
-        highFreqSNR = findViewById(R.id.highFreqSNR);
-        stateText = findViewById(R.id.stateTextView);
-        timerText = findViewById(R.id.timerTextView);
+        spectrogram     = findViewById(R.id.spectrogram);
+        btn_startstop   = findViewById(R.id.btn_startstop);
+        btn_adj_down    = findViewById(R.id.adjustDownButton);
+        btn_adj_up      = findViewById(R.id.adjustUpButton);
+        btn_snr_reset = findViewById(R.id.snrResetButton);
+        lowFreqSNR      = findViewById(R.id.lowFreqSNR);
+        midFreqSNR      = findViewById(R.id.midFreqSNR);
+        highFreqSNR     = findViewById(R.id.highFreqSNR);
+        stateText       = findViewById(R.id.stateTextView);
+        timerText       = findViewById(R.id.timerTextView);
         spectrogramHelper = new SpectrogramHelper(20*44100/256, 512);
         snrHelper = new SNRHelper(5*44100/256, 512);
         stateText.setText("Hold your breath");
@@ -88,7 +89,7 @@ public class CommunicationActivity extends AppCompatActivity {
                         sendReceive = new SendReceive(socketHandler.getSocket());
                         sendReceive.start();
                         sendReceive.write("STARTRECORD".getBytes());
-                        drawSpectrogram();
+                        displaySoundData();
                         startTimer();
                     } else {
                         recording = false;
@@ -97,16 +98,35 @@ public class CommunicationActivity extends AppCompatActivity {
                     }
                 }
         });
-        btn_reset.setOnClickListener(new View.OnClickListener() {
+        btn_adj_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioAnalyzer.fileWritten = false;
+                if(spectrogramHelper != null){
+                    spectrogramHelper.changeIntensity(0.90);
+                }
+            }
+        });
+        btn_adj_down.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(spectrogramHelper != null){
+                    spectrogramHelper.changeIntensity(1.10);
+                }
+            }
+        });
+        btn_snr_reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(snrHelper.getState() == SNRHelper.SAMPLE_STATE) {
+                    startTimer();
+                }
             }
         });
     }
 
     private void startTimer() {
         snrHelper.setState(SNRHelper.NOISE_STATE);
+        stateText.setText("Hold your breath");
         new CountDownTimer(10000,1000) {
 
             @Override
@@ -123,7 +143,7 @@ public class CommunicationActivity extends AppCompatActivity {
         }.start();
     }
 
-    private void drawSpectrogram() {
+    private void displaySoundData() {
         new Thread() {
             public void run() {
                 while (recording) {
@@ -132,8 +152,10 @@ public class CommunicationActivity extends AppCompatActivity {
                         public void run() {
                             DecimalFormat df = new DecimalFormat();
                             df.setMaximumFractionDigits(3);
+                            df.setMinimumFractionDigits(3);
+                            Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                            whitePaint.setColor(Color.WHITE);
                             if (audioAnalyzer != null) {
-                            //    Log.i(TAG, "Drawing Spectrogram to ImageView");
                                 Bitmap spectrogramBMap = spectrogramHelper.getBitmap();
                                 Bitmap tempBitmap = Bitmap.createBitmap(spectrogram.getWidth(), spectrogram.getHeight(), Bitmap.Config.RGB_565);
 
@@ -141,9 +163,13 @@ public class CommunicationActivity extends AppCompatActivity {
                                 Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                                 paint.setColor(Color.BLACK);
                                 paint.setTextSize(32f);
-                                tempCanvas.drawBitmap(spectrogramBMap, null, new RectF(0,0, tempCanvas.getWidth(), tempCanvas.getHeight()),null);
+                                tempCanvas.drawRect(0,0,tempCanvas.getWidth(),tempCanvas.getHeight(),whitePaint);
+                                tempCanvas.drawBitmap(spectrogramBMap, null, new RectF(48,32, tempCanvas.getWidth(), tempCanvas.getHeight()),null);
                                 for (int i=0;i<11;i++) {
-                                    tempCanvas.drawText("_ "+i+" kHz",0,(int) ((10-i)*(tempCanvas.getHeight())/10) + 1, paint);
+                                    if(i<10)
+                                        tempCanvas.drawText(" "+i+"k _",0,(int) ((10-i)*(tempCanvas.getHeight()-32)/10) + 32, paint);
+                                    else
+                                        tempCanvas.drawText(i+"k _",0,(int) ((10-i)*(tempCanvas.getHeight()-32)/10) + 32, paint);
                                 }
                                 spectrogram.setImageBitmap(tempBitmap);
 
@@ -154,9 +180,9 @@ public class CommunicationActivity extends AppCompatActivity {
                                     lowSNRWarning();
                                 }
 
-                                lowFreqSNR.setText("44Hz-1kHz:\t"+df.format(lowSNR));
-                                midFreqSNR.setText("1kHz-3kHz:\t"+df.format(midSNR));
-                                highFreqSNR.setText("3kHz-10kHz:\t"+df.format(highSNR));
+                                lowFreqSNR.setText  ("44Hz-1kHz: \t"+df.format(lowSNR));
+                                midFreqSNR.setText  ("1kHz-3kHz: \t"+df.format(midSNR));
+                                highFreqSNR.setText ("3kHz-10kHz:\t"+df.format(highSNR));
 
                             }
                         }
@@ -172,33 +198,9 @@ public class CommunicationActivity extends AppCompatActivity {
     }
 
     public void lowSNRWarning(){
-
+        // TODO: display a popup warning the user about the low SNR value and instructing them to move the microphone
+        Log.i(TAG, "Low SNR Value");
     }
-
-//    private class ClientClass extends Thread {
-//        private Socket socket;
-//
-//        private String hostAddress;
-//        public ClientClass(InetAddress hostAddress){
-//            this.hostAddress = hostAddress.getHostAddress();
-//            socket = new Socket();
-//        }
-//
-//        public Socket getSocket() {
-//            return socket;
-//        }
-//
-//        @Override
-//        public void run() {
-//            try {
-//                Log.i(TAG,"Attempting to connect to "+hostAddress+":8888...");
-//                socket.connect(new InetSocketAddress(hostAddress,8888), 500);
-//                Log.i(TAG,"Connected to "+hostAddress+":8888.");
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
     private class SendReceive extends Thread {
         private Socket socket;
@@ -216,8 +218,6 @@ public class CommunicationActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
-
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void run() {

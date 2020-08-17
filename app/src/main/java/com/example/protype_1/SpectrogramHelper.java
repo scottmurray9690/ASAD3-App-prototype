@@ -2,8 +2,11 @@ package com.example.protype_1;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 
 public class SpectrogramHelper {
+    public final static String TAG = "SpecHelp";
+
     final static int DISPLAY_WIDTH = (int)(10*44100/256); // this is messy, but it ensures the display shows 10s of data at a time ...
     final static int DISPLAY_HEIGHT = (int)(10000*512/22050); // and 10kHz on the y axis
     int width;
@@ -51,23 +54,27 @@ public class SpectrogramHelper {
     }
     public void addColumn(float[] amplitudes) {
         if(isFirstColumn){
-            //double tempsum = 0;
-            for (float amplitude : amplitudes) {
-                //tempsum+=amplitude;
-                if (amplitude < minAmp) {
-                    minAmp = amplitude;
-                }
-            }
-            //minAmp = tempsum/amplitudes.length;
+//            for (float amplitude : amplitudes) {
+//                if (amplitude < minAmp) {
+//                    minAmp = amplitude;
+//                }
+//            }
+            minAmp = 0.015;
             maxAmp = minAmp*50;
             maxAmp = Math.log10(maxAmp/minAmp)*10;
+            Log.i(TAG,"minAmp = "+minAmp+ "\tmaxAmp = " +maxAmp+"\nisFirstColumn = "+isFirstColumn);
             isFirstColumn = false;
+
         }
         double[] dbAmps = hzToDb(amplitudes); //turn amplitudes into doubles and normalize
         dbAmps[0] = 0;  //Do not graph the DC component, it is too large and messes everything up
         System.arraycopy(dbAmps, 0, spectrogram[index], 0, height);
         setColumnColours(dbAmps);
         index = (index+1)%width;
+    }
+
+    public void changeIntensity(double amount){
+        minAmp *= amount;
     }
 
     private int getColor(double power) {

@@ -69,7 +69,7 @@ public class SocketConnectActivity extends AppCompatActivity {
                             tryAgainButton.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.INVISIBLE);
                             connectionStatus.setText("Connection failed.");
-                            errorMessage.setText(e.getLocalizedMessage());
+                            errorMessage.setText(e.getLocalizedMessage().replace("/192.168.50.1 (port 8888)", "server"));
                         }});
                     e.printStackTrace();
                 }
