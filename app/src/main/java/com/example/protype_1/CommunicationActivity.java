@@ -102,7 +102,7 @@ public class CommunicationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(spectrogramHelper != null){
-                    spectrogramHelper.changeIntensity(0.90);
+                    spectrogramHelper.changeIntensity(0.50);
                 }
             }
         });
@@ -110,7 +110,7 @@ public class CommunicationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(spectrogramHelper != null){
-                    spectrogramHelper.changeIntensity(1.10);
+                    spectrogramHelper.changeIntensity(1.50);
                 }
             }
         });

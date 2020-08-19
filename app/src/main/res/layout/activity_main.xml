@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="90dp"
         android:layout_marginBottom="248dp"
-        android:onClick="Ganesh"
         android:text="Lets get Started"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textView2"

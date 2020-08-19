@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,17 +14,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class featureActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     Button b1;
-    EditText ed1, ed2, ed3, ed4, ed5;
+    EditText lastName, firstName, age, neckWidth, BMI;
+    Spinner sex;
     public static int prof_num = 1;
     String profile = "Profile";
 
@@ -44,16 +47,16 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
      */
     private void initViews(){
         b1=(Button)findViewById(R.id.to_feat1);
-        ed1=(EditText)findViewById(R.id.l_name);
-        ed2=(EditText)findViewById(R.id.f_name);
-        ed3=(EditText)findViewById(R.id.age);
-        ed4=(EditText)findViewById(R.id.neck);
-        ed5=(EditText)findViewById(R.id.BMI);
+        lastName =(EditText)findViewById(R.id.l_name);
+        firstName =(EditText)findViewById(R.id.f_name);
+        age =(EditText)findViewById(R.id.age);
+        neckWidth =(EditText)findViewById(R.id.neck);
+        BMI =(EditText)findViewById(R.id.BMI);
 
         // Spinner element
-        Spinner spinner = (Spinner) findViewById(R.id.Gender);
+        sex = (Spinner) findViewById(R.id.Gender);
         // Spinner click listener
-        spinner.setOnItemSelectedListener(this);
+        sex.setOnItemSelectedListener(this);
 
         // Spinner Drop down elements
         List<String> categories = new ArrayList<String>();
@@ -65,7 +68,7 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
+        sex.setAdapter(dataAdapter);
 
     }
 
@@ -75,58 +78,77 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
      */
     private boolean check(){
         boolean valid = true;
-        if(ed1.getText().toString().length() == 0){
-            ed1.setError("Input Last Name");
+        if(lastName.getText().toString().length() == 0){
+            lastName.setError("Input Last Name");
             valid = false;
         }
 
 
-        if(ed2.getText().toString().length() == 0){
-            ed2.setError("Input First Name");
+        if(firstName.getText().toString().length() == 0){
+            firstName.setError("Input First Name");
             valid = false;
         }
 
 
-        if(ed3.getText().toString().length() == 0){
-            ed3.setError("Input Valid Age");
+        if(age.getText().toString().length() == 0){
+            age.setError("Input Valid Age");
             valid = false;
         }
 
 
-        if(ed4.getText().toString().length() == 0){
-            ed4.setError("Input Valid Neck Size");
+        if(neckWidth.getText().toString().length() == 0){
+            neckWidth.setError("Input Valid Neck Size");
             valid = false;
         }
 
 
-        if(ed5.getText().toString().length() == 0){
-            ed5.setError("Input Valid BMI");
+        if(BMI.getText().toString().length() == 0){
+            BMI.setError("Input Valid BMI");
             valid = false;
         }
 
         return valid;
     }
 
+    public String writeCsv() {
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String initials = firstName.getText().charAt(0) +""+ lastName.getText().charAt(0);
+        String fileName = initials +"_"+ currentDate + "Recording1.csv";
+        String filePath = baseDir +  File.separator + fileName;
+        File tempFile = new File(filePath);
 
-//////EDIT HERE//////////////////////////////////////////////////
-    private void read(View view) {
+        int recNum = 1;
+        while(tempFile.exists()){
+            recNum++;
+
+            fileName = initials +"_"+ currentDate + "Recording"+recNum+".csv";
+            filePath = baseDir + File.separator + fileName;
+            tempFile = new File(filePath);
+
+        }
+
+        Log.i("FeatAct","File path: "+ filePath);
+        Log.i("FeatAct","First name: "+ firstName.getText().charAt(0)+ "// "+ firstName.getText());
+
+        FileWriter csvWriter;
+
         try {
-            FileInputStream fileInputStream= openFileInput("profile");
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuffer stringBuffer = new StringBuffer();
-            String lines;
-            while ((lines=bufferedReader.readLine())!=null) {
-                stringBuffer.append(lines+"\n");
-            }
-            //textView.setText(stringBuffer.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            csvWriter = new FileWriter(tempFile, false);
+            csvWriter.append("FirstName,LastName,Sex,Age,NeckWidth,BMI,HoursSlept,Smoking,Snoring,SleepWhileDriving,Tiredness0-5");
+            csvWriter.append("\n");
+            csvWriter.append(firstName.getText() + ","
+                    +lastName.getText()+","
+                    +sex.getSelectedItem().toString() + ","
+                    +age.getText()+","
+                    +neckWidth.getText()+","
+                    +BMI.getText()+",");
+            csvWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return filePath;
     }
-////////////////////////////////////////////////////////////////////
 
     /**
      * go to next feature page (Executed when "NEXT" is clicked)
@@ -135,8 +157,11 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
      */
     public void to_feat1 (View View) {
         //if all entries
-        if(check())
-            startActivity(new Intent(this, feature1Activity.class));
+        if(check()) {
+            Intent i = new Intent(this, feature1Activity.class);
+            i.putExtra("FILE_PATH",writeCsv());
+            startActivity(i);
+        }
    }
 
 

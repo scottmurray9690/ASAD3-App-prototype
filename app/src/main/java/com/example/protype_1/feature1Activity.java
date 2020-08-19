@@ -12,8 +12,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -21,17 +23,22 @@ import java.util.List;
 
 public class feature1Activity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     Button b1;
-    EditText ed1;
-    Spinner spinner1,spinner2,spinner3,spinner4;
+    EditText hoursSleep;
+    Spinner spinnerDrive, spinnerSnore, spinnerTired, spinnerSmoker;
     boolean valid_entries = false;
     public static int prof_num = 1;
     String profile = "Profile";
+    String filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feat_1);
+
+        Bundle extras = getIntent().getExtras();
+        filePath = extras.getString("FILE_PATH");
+
         initViews();
 
     }
@@ -40,17 +47,17 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
      * Initializes elements on feature 2 page
      */
     private void initViews(){
-        ed1  =  (EditText) findViewById(R.id.hours_of_sleep);
-        spinner1 = (Spinner) findViewById(R.id.spinner_drive);
-        spinner2 = (Spinner) findViewById(R.id.spinner_snore2);
-        spinner3 = (Spinner) findViewById(R.id.spinner_rate);
-        spinner4 = (Spinner) findViewById(R.id.spinner_smoking);
+        hoursSleep =  (EditText) findViewById(R.id.hours_of_sleep);
+        spinnerDrive = (Spinner) findViewById(R.id.spinner_drive);
+        spinnerSnore = (Spinner) findViewById(R.id.spinner_snore2);
+        spinnerTired = (Spinner) findViewById(R.id.spinner_rate);
+        spinnerSmoker = (Spinner) findViewById(R.id.spinner_smoking);
 
         // Spinner click listener
-        spinner1.setOnItemSelectedListener(this);
-        spinner2.setOnItemSelectedListener(this);
-        spinner3.setOnItemSelectedListener(this);
-        spinner4.setOnItemSelectedListener(this);
+        spinnerDrive.setOnItemSelectedListener(this);
+        spinnerSnore.setOnItemSelectedListener(this);
+        spinnerTired.setOnItemSelectedListener(this);
+        spinnerSmoker.setOnItemSelectedListener(this);
 
         // Spinner Drop down elements
         List<String> categories = new ArrayList<String>();
@@ -72,8 +79,8 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
         dataAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // attaching data adapter to spinner
-        spinner1.setAdapter(dataAdapter1);
-        spinner2.setAdapter(dataAdapter2);
+        spinnerDrive.setAdapter(dataAdapter1);
+        spinnerSnore.setAdapter(dataAdapter2);
 
 
         List<String> categories1 = new ArrayList<String>();
@@ -84,7 +91,7 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
         // Drop down layout style - list view with radio button
         dataAdapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // attaching data adapter to spinner
-        spinner4.setAdapter(dataAdapter3);
+        spinnerSmoker.setAdapter(dataAdapter3);
 
         List<String> categories2 = new ArrayList<String>();
         categories2.clear();
@@ -94,7 +101,7 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
         // Drop down layout style - list view with radio button
         dataAdapter4.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // attaching data adapter to spinner
-        spinner3.setAdapter(dataAdapter4);
+        spinnerTired.setAdapter(dataAdapter4);
 
 
     }
@@ -126,12 +133,31 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
      * Method that checks if all features have been entered correctly
      */
     private boolean check(){
-        if(ed1.getText().toString().length() == 0){
-            ed1.setError("Input Hours of Sleep");
+        if(hoursSleep.getText().toString().length() == 0){
+            hoursSleep.setError("Input Hours of Sleep");
             return false;
         }
 
         return true;
+    }
+
+    public void writeCsv(){
+        File tempFile = new File(filePath);
+        if(tempFile.exists()) {
+            try {
+                FileWriter csvWriter = new FileWriter(tempFile, true);
+                csvWriter.append(hoursSleep.getText()+","
+                        +spinnerSmoker.getSelectedItem().toString()+","
+                        +spinnerSnore.getSelectedItem().toString()+","
+                        +spinnerDrive.getSelectedItem().toString()+","
+                        +spinnerTired.getSelectedItem().toString());
+                csvWriter.append("\n");
+                csvWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     /**
@@ -141,8 +167,10 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
      */
     public void to_ins (View View) {
         //if all entries
-        if(check())
+        if(check()) {
+            writeCsv();
             startActivity(new Intent(this, Ins1Activity.class));
+        }
     }
 
 
