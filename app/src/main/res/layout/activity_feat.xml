@@ -21,7 +21,7 @@
 
 
     <EditText
-        android:id="@+id/l_name"
+        android:id="@+id/f_name"
         android:layout_width="150dp"
         android:layout_height="42dp"
         android:layout_marginStart="8dp"
@@ -155,14 +155,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginBottom="24dp"
-        android:text="First Name"
+        android:text="Last Name"
         app:layout_constraintBottom_toTopOf="@+id/sex"
-        app:layout_constraintEnd_toStartOf="@+id/f_name"
+        app:layout_constraintEnd_toStartOf="@+id/l_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
@@ -171,10 +169,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="24dp"
-        android:text="Last Name "
+        android:text="First Name "
         app:layout_constraintBottom_toTopOf="@+id/textView6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -192,7 +189,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <EditText
-        android:id="@+id/f_name"
+        android:id="@+id/l_name"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

@@ -96,7 +96,7 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
         List<String> categories2 = new ArrayList<String>();
         categories2.clear();
         //categories.add("");
-        for(int i = 0; i < 6; i++){categories2.add(""+i);}
+        for(int i = 1; i <= 5; i++){categories2.add(""+i);}
         ArrayAdapter<String> dataAdapter4 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories2);
         // Drop down layout style - list view with radio button
         dataAdapter4.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

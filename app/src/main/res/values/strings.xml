@@ -10,7 +10,7 @@
     <string name="sleep_snore">Do you snore during sleep?</string>
 
     <string name="drive_and_sleep">Have you ever fallen asleep while driving?</string>
-    <string name="sleepiness">Rate your tiredness and sleepiness between 0(Low) to 5(High)</string>
+    <string name="sleepiness">Rate your tiredness and sleepiness between 1(Low) to 5(High)</string>
     <string name="hour_per_sleep">How many hours do you normally sleep per night?</string>
     <string name="smoke_history">Do you have a history of smoking?</string>
 
