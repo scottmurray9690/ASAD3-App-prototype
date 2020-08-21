@@ -221,7 +221,7 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
 
     public void lowSNRWarning(){
         // TODO: display a popup warning the user about the low SNR value and instructing them to move the microphone
-        Log.i(TAG, "Low SNR Value");
+        //Log.i(TAG, "Low SNR Value");
     }
 
 }

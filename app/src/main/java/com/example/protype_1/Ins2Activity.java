@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.protype_1.old.WifiConnectActivity;
+
 public class Ins2Activity extends AppCompatActivity {
 
     @Override

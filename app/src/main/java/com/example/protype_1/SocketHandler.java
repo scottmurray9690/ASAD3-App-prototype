@@ -15,9 +15,11 @@ public class SocketHandler {
         socket = new Socket();
         error = null;
     }
+
     public Socket getSocket() {
         return socket;
     }
+
     public void connectTo(InetAddress hostAddress, int port) throws IOException {
         socket.connect(new InetSocketAddress(hostAddress,port),1000);
     }

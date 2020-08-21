@@ -1,6 +1,7 @@
 package com.example.protype_1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -8,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -52,7 +54,17 @@ public class CommunicationFragment extends Fragment {
 
         sendReceive = new SendReceive(socketHandler.getSocket());
         sendReceive.start();
+    }
 
+    @Override
+    public void onDestroy() {
+        try {
+            socketHandler.getSocket().close();
+            Log.i(TAG,"closed socket: "+socketHandler.getSocket().isClosed());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
     }
 
     public boolean isRecording(){return recording;}
@@ -140,7 +152,14 @@ public class CommunicationFragment extends Fragment {
                         }
 
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.i(TAG, "IOException occurred: "+e.getMessage());
+                        Intent intent = new Intent(getActivity(), Ins3Activity.class);
+                        startActivity(intent);
+                        break;
+                    } catch (NegativeArraySizeException ne) {
+                        Log.i(TAG, "NegativeArraySizeException occured:" +ne.getMessage() );
+                        Intent intent = new Intent(getActivity(), Ins3Activity.class);
+                        startActivity(intent);
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package com.example.protype_1;
+package com.example.protype_1.old;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -22,6 +22,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.protype_1.R;
+import com.example.protype_1.SocketConnectActivity;
+import com.example.protype_1.WifiReceiver;
 
 import java.util.ArrayList;
 import java.util.List;

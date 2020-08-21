@@ -153,6 +153,7 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
                         +spinnerTired.getSelectedItem().toString());
                 csvWriter.append("\n");
                 csvWriter.close();
+                Toast.makeText(getApplicationContext(), "Profile written to: "+filePath, Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -6,10 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.protype_1.Ins2Activity;
-import com.example.protype_1.R;
-import com.example.protype_1.WifiConnectActivity;
-
 public class Ins3Activity extends AppCompatActivity {
 
     @Override
