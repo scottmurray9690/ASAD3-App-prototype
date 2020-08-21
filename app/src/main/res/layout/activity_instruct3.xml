@@ -20,10 +20,10 @@
     <TextView
         android:id="@+id/textView5"
         android:layout_width="321dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="32dp"
-        android:text="Step 3: Connect to the OSA device"
+        android:text="Step 3: Connect to the  ASAD3 device"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/textView7"
