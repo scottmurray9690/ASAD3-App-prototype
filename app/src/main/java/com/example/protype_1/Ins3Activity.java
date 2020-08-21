@@ -30,7 +30,7 @@ public class Ins3Activity extends AppCompatActivity {
                 break;
 
             case "Next":
-                startActivity(new Intent(this, SocketConnectActivity.class));
+                startActivity(new Intent(this, Ins4Activity.class));
                 break;
 
             case "Skip":

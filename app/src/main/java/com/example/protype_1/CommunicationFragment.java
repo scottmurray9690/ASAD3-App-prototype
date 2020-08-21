@@ -153,12 +153,12 @@ public class CommunicationFragment extends Fragment {
 
                     } catch (IOException e) {
                         Log.i(TAG, "IOException occurred: "+e.getMessage());
-                        Intent intent = new Intent(getActivity(), Ins3Activity.class);
+                        Intent intent = new Intent(getActivity(), Ins4Activity.class);
                         startActivity(intent);
                         break;
                     } catch (NegativeArraySizeException ne) {
                         Log.i(TAG, "NegativeArraySizeException occured:" +ne.getMessage() );
-                        Intent intent = new Intent(getActivity(), Ins3Activity.class);
+                        Intent intent = new Intent(getActivity(), Ins4Activity.class);
                         startActivity(intent);
                     }
                 }
