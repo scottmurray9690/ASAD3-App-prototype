@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +22,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class CommunicationFragment extends Fragment {
     private static final String TAG = "CommFrag";
@@ -34,7 +37,9 @@ public class CommunicationFragment extends Fragment {
     private SocketHandler socketHandler;
     private AudioAnalyzer audioAnalyzer;
     private SendReceive sendReceive;
-
+    // Recording stuff
+    private AudioRecorder audioRecorder;
+    // end recording stuff
     private boolean recording;
 
     @Override
@@ -54,6 +59,8 @@ public class CommunicationFragment extends Fragment {
 
         sendReceive = new SendReceive(socketHandler.getSocket());
         sendReceive.start();
+
+        audioRecorder = new AudioRecorder();
     }
 
     @Override
@@ -72,6 +79,13 @@ public class CommunicationFragment extends Fragment {
     public void startRecording(){
         recording = true;
         sendReceive.write("STARTRECORD".getBytes());
+        try {
+            File tempFile = getTempFile();
+            audioRecorder.setFile(tempFile);
+            audioRecorder.setHeader();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
     public void stopRecording(){
@@ -108,6 +122,13 @@ public class CommunicationFragment extends Fragment {
                 }
             }.start();
         }
+    }
+
+    private File getTempFile() throws IOException {
+        String filename = UUID.randomUUID().toString().replaceAll("-", "");
+        File tempFileDir = getActivity().getCacheDir();
+        File tempFile = File.createTempFile(filename, ".wav", tempFileDir);
+        return tempFile;
     }
 
     private class SendReceive extends Thread {

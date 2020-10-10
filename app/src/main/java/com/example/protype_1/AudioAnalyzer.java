@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -104,6 +105,8 @@ public class AudioAnalyzer {
 // for 10-3000Hz midpoint = (3000+10)/2, bandwidth = (3000-10)
         dispatcher.addAudioProcessor(new BandPass(1505, 2990, 44100));
         dispatcher.addAudioProcessor(fftProcessor);
+
+
     }
 
 

@@ -95,7 +95,6 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
     private void initFragment(){
         FragmentManager fm = getSupportFragmentManager();
         communicationFragment = (CommunicationFragment) fm.findFragmentByTag(TAG_COMMUNICATION_FRAGMENT);
-
         if(communicationFragment == null){
             communicationFragment = new CommunicationFragment();
             fm.beginTransaction().add(communicationFragment, TAG_COMMUNICATION_FRAGMENT).commit();

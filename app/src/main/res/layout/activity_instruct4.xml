@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:text='Make sure that:\n\t1. The device is set to "Phone Control" and is listening for connections.\n\t2. There are no exisitng recordings saved to the USB inserted into the device.\n\t3. You do not press the red "Record" button while the device is streaming to the phone.'
+        android:text='Make sure that:\n\t1. The device is set to "Phone Control" and is listening for connections.\n\t2. There are no existing recordings saved to the USB inserted into the device.\n\t3. You do not press the red "Record" button while the device is streaming to the phone.'
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
