@@ -25,10 +25,10 @@
         </activity>
         <activity
             android:name=".SocketConnectActivity"
-            android:label="Connecting"></activity>
+            android:label="Connecting" />
         <activity
             android:name=".CommunicationActivity"
-            android:label="Breath Analysis"></activity>
+            android:label="Breath Analysis" />
         <activity
             android:name=".old.WifiConnectActivity"
             android:label="Instruction" />
