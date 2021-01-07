@@ -197,31 +197,32 @@ public class CommunicationFragment extends Fragment {
                     try {
                         // read the incoming file into a byte array
                         if (inputStream.read(header_buffer) == 44) {
-                            byte[] riffDiff  ="RIFF".getBytes(StandardCharsets.UTF_8);
-                            int riffLocation = Collections.indexOfSubList(Arrays.asList(header_buffer), Arrays.asList(riffDiff));
+//                            byte[] riffDiff  ="RIFF".getBytes(StandardCharsets.UTF_8);
+//                            int riffLocation = Collections.indexOfSubList(Arrays.asList(header_buffer), Arrays.asList(riffDiff));
                             byte[] riff = Arrays.copyOfRange(header_buffer,0,4);
-                            Log.i(TAG,"Header starts with: "+new String(riff, StandardCharsets.UTF_8)+"\n RIFF found at: "+riffLocation);
+                            Log.i(TAG,"Header starts with: "+new String(riff, StandardCharsets.UTF_8));//+"\n RIFF found at: "+riffLocation);
 
                             ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer, 40, 44)).order(ByteOrder.LITTLE_ENDIAN);
                             size = wrappedSize.getInt() + 44;
                             if(size != 17684){
                                 Log.i(TAG, "READING FRAME ISSUE, got size as:"+size+"\nHeader starts with: "+new String(riff, StandardCharsets.UTF_8));
                             }
-                            //Read the data
-                            audioByteArray = new byte[size];
-                            System.arraycopy(header_buffer, 0, audioByteArray, 0, 44); // add the header to the audio byte array
-                            int pointer = 44;
-                            while (pointer < size) {
-                                int count = inputStream.read(audioByteArray, pointer, size - pointer);
-                                pointer += count;
-                            }
+                            //if ( size >=0 ) {
+                                //Read the data
+                                audioByteArray = new byte[size];
+                                System.arraycopy(header_buffer, 0, audioByteArray, 0, 44); // add the header to the audio byte array
+                                int pointer = 44;
+                                while (pointer < size) {
+                                    int count = inputStream.read(audioByteArray, pointer, size - pointer);
+                                    pointer += count;
+                                }
 
-                            audioRecorder.writeData(Arrays.copyOfRange(audioByteArray, 44, audioByteArray.length));
-                            // end audioRecorder
-                            BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray));
-                            audioAnalyzer.initDispatcher(audioInputStream);
-                            audioAnalyzer.startAnalyzer();
-
+                                audioRecorder.writeData(Arrays.copyOfRange(audioByteArray, 44, audioByteArray.length));
+                                // end audioRecorder
+                                BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray));
+                                audioAnalyzer.initDispatcher(audioInputStream);
+                                audioAnalyzer.startAnalyzer();
+                            //}
                         }
 
                     } catch (IOException e) {
