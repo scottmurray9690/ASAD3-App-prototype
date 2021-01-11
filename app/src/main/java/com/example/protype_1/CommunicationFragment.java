@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -22,7 +22,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.UUID;
 
 public class CommunicationFragment extends Fragment {
@@ -206,8 +205,10 @@ public class CommunicationFragment extends Fragment {
                             size = wrappedSize.getInt() + 44;
                             if(size != 17684){
                                 Log.i(TAG, "READING FRAME ISSUE, got size as:"+size+"\nHeader starts with: "+new String(riff, StandardCharsets.UTF_8));
+                                // stop the recording.
+                                stopRecording();
                             }
-                            //if ( size >=0 ) {
+                            else {
                                 //Read the data
                                 audioByteArray = new byte[size];
                                 System.arraycopy(header_buffer, 0, audioByteArray, 0, 44); // add the header to the audio byte array
@@ -222,7 +223,7 @@ public class CommunicationFragment extends Fragment {
                                 BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray));
                                 audioAnalyzer.initDispatcher(audioInputStream);
                                 audioAnalyzer.startAnalyzer();
-                            //}
+                            }
                         }
 
                     } catch (IOException e) {

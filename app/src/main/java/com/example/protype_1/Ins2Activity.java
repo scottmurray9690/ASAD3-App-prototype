@@ -3,11 +3,10 @@ package com.example.protype_1;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.protype_1.old.WifiConnectActivity;
 
 public class Ins2Activity extends AppCompatActivity {
 
@@ -34,11 +33,7 @@ public class Ins2Activity extends AppCompatActivity {
                 break;
 
             case "Next":
-                if(Build.VERSION.SDK_INT < 28) {
-                    startActivity(new Intent(this, WifiConnectActivity.class));
-                } else {
                     startActivity(new Intent(this, Ins3Activity.class));
-                }
                 break;
 
             case "Skip":
