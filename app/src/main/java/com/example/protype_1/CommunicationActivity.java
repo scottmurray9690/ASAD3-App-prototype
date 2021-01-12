@@ -1,5 +1,6 @@
 package com.example.protype_1;
 
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -43,14 +44,29 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
 
     private final String TAG = "CommAct";
     private static final String TAG_COMMUNICATION_FRAGMENT = "comm_fragment";
-    private CommunicationViewModel mViewModel;
+    private CommunicationViewModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_communication);
 
-        mViewModel = new ViewModelProvider(this).get(CommunicationViewModel.class);
+        model = new ViewModelProvider(this).get(CommunicationViewModel.class);
+
+        // Observe whether or not it is recording
+        final Observer<Boolean> recordingObserver = new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isRecording) {
+                if(isRecording) {
+                    displaySoundData();
+                    btn_startstop.setText("STOP");
+                } else {
+                    btn_startstop.setText("START");
+                }
+            }
+        };
+        model.getRecording().observe(this, recordingObserver);
+
         initFragment();
         initWork();
         initOnClicks();
@@ -70,12 +86,7 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
         stateText       = findViewById(R.id.stateTextView);
         timerText       = findViewById(R.id.timerTextView);
 
-        if(mViewModel.isRecording()){
-            btn_startstop.setText("STOP");
-            displaySoundData();
-        } else {
-            btn_startstop.setText("START");
-        }
+
         updateTimer(0);
 
 //        stateText.setText("Hold your breath");
@@ -118,16 +129,13 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
     }
 
     public void toggleRecording() {
-        if(!mViewModel.isRecording()) { //!communicationFragment.isRecording()
-            mViewModel.setRecording(true);
-            btn_startstop.setText("STOP");
+        if(!model.getRecording().getValue()) {
+            model.getRecording().setValue(true);
             communicationFragment.startRecording();
-            displaySoundData();
             communicationFragment.initSnr();
         } else {
-            mViewModel.setRecording(false);
+            model.getRecording().setValue(false);
             communicationFragment.stopRecording();
-            btn_startstop.setText("START");
         }
     }
 
@@ -153,7 +161,7 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
     private void displaySoundData() {
         new Thread() {
             public void run() {
-                while (mViewModel.isRecording()) {
+                while (model.getRecording().getValue()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

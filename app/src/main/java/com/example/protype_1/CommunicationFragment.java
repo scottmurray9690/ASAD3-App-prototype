@@ -8,6 +8,8 @@ import android.os.CountDownTimer;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -39,8 +41,8 @@ public class CommunicationFragment extends Fragment {
     private SendReceive sendReceive;
     // Recording stuff
     private AudioRecorder audioRecorder;
-    // end recording stuff
-    private boolean recording;
+
+    private CommunicationViewModel model;
 
     private File tempFile;
 
@@ -52,12 +54,15 @@ public class CommunicationFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        model = new ViewModelProvider(requireActivity()).get(CommunicationViewModel.class);
+
         setRetainInstance(true);
         spectrogramHelper = new SpectrogramHelper(20*44100/256, 512);
         snrHelper = new SNRHelper(5*44100/256, 512);
         socketHandler = new SocketHandler();
 
-        recording = false;
+        model.getRecording().setValue(false);
 
         sendReceive = new SendReceive(socketHandler.getSocket());
         sendReceive.start();
@@ -77,10 +82,8 @@ public class CommunicationFragment extends Fragment {
         super.onDestroy();
     }
 
-    public boolean isRecording(){return recording;}
-
     public void startRecording(){
-        recording = true;
+        model.getRecording().setValue(true);
         sendReceive.write("STARTRECORD".getBytes());
         try {
             // consider making a global variable for safe deletion
@@ -91,10 +94,8 @@ public class CommunicationFragment extends Fragment {
         }
     }
 
-    //TODO: remove this @requiresApi thing
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopRecording(){
-        recording = false;
+        model.getRecording().postValue(false);
         sendReceive.write("STOPRECORD".getBytes());
         try {
             // TODO: Prompt user to save/discard recording
@@ -192,7 +193,7 @@ public class CommunicationFragment extends Fragment {
             int size;
             while (true) {
                 //keep thread alive if not recording
-                if (recording) {
+                if (model.getRecording().getValue()) {
                     try {
                         // read the incoming file into a byte array
                         if (inputStream.read(header_buffer) == 44) {
@@ -207,6 +208,7 @@ public class CommunicationFragment extends Fragment {
                                 Log.i(TAG, "READING FRAME ISSUE, got size as:"+size+"\nHeader starts with: "+new String(riff, StandardCharsets.UTF_8));
                                 // stop the recording.
                                 stopRecording();
+                                // TODO: clear out the buffer and get a clean resart, it breaks horribly right now.
                             }
                             else {
                                 //Read the data
