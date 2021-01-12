@@ -197,18 +197,16 @@ public class CommunicationFragment extends Fragment {
                     try {
                         // read the incoming file into a byte array
                         if (inputStream.read(header_buffer) == 44) {
-//                            byte[] riffDiff  ="RIFF".getBytes(StandardCharsets.UTF_8);
-//                            int riffLocation = Collections.indexOfSubList(Arrays.asList(header_buffer), Arrays.asList(riffDiff));
-                            byte[] riff = Arrays.copyOfRange(header_buffer,0,4);
-                            Log.i(TAG,"Header starts with: "+new String(riff, StandardCharsets.UTF_8));//+"\n RIFF found at: "+riffLocation);
-
                             ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer, 40, 44)).order(ByteOrder.LITTLE_ENDIAN);
                             size = wrappedSize.getInt() + 44;
                             if(size != 17684){
+                                byte[] riff = Arrays.copyOfRange(header_buffer,0,4);
                                 Log.i(TAG, "READING FRAME ISSUE, got size as:"+size+"\nHeader starts with: "+new String(riff, StandardCharsets.UTF_8));
+
                                 // stop the recording.
                                 stopRecording();
-                                // TODO: clear out the buffer and get a clean resart, it breaks horribly right now.
+                                long skipped = inputStream.skip(inputStream.available());
+                                Log.i(TAG,"Skipped "+skipped+" bytes.");
                             }
                             else {
                                 //Read the data
