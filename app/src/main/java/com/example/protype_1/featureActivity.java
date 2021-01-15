@@ -112,10 +112,14 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
 
     public String writeCsv() {
         String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
-        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ASAD3" + File.separator + "profiles";
         String initials = firstName.getText().charAt(0) +""+ lastName.getText().charAt(0);
         String fileName = initials +"_"+ currentDate + "Recording1.csv";
         String filePath = baseDir +  File.separator + fileName;
+
+        File directory = new File(baseDir);
+        directory.mkdirs();
+
         File tempFile = new File(filePath);
 
         int recNum = 1;

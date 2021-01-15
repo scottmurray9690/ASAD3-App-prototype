@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -26,7 +27,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class CommunicationFragment extends Fragment {
+public class CommunicationFragment extends Fragment  {
     private static final String TAG = "CommFrag";
 
     interface TimerCallback {
@@ -83,6 +84,8 @@ public class CommunicationFragment extends Fragment {
     }
 
     public void startRecording(){
+        sendReceive.clean = true;
+
         model.getRecording().setValue(true);
         sendReceive.write("STARTRECORD".getBytes());
         try {
@@ -94,20 +97,29 @@ public class CommunicationFragment extends Fragment {
         }
     }
 
+    public void saveRecordingPrompt() {
+        DialogFragment saveRecordingDialog = new SaveRecordingDialog("Recording Stopped.");
+        saveRecordingDialog.show(getFragmentManager(), "Save_Recording");
+    }
+
     public void stopRecording(){
         model.getRecording().postValue(false);
         sendReceive.write("STOPRECORD".getBytes());
-        try {
-            // TODO: Prompt user to save/discard recording
+    }
 
+    public void saveRecording() {
+        try {
             // need to prompt user to find location for saving
-            String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+            String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"ASAD3"+File.separator+"recordings";
             String fileName = "Recording"+ LocalTime.now().toString().replace(".",":") +".wav";
             String filePath = baseDir +  File.separator + fileName;
+            File directory = new File(baseDir);
+            directory.mkdirs();
             File saveFile = new File(filePath);
 
             audioRecorder.saveRecording(saveFile);
-            Log.i(TAG,"Saved recording at "+filePath);
+            Log.i(TAG, "Saved recording at " + filePath);
+
             deleteTempFiles(tempFile);
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -152,7 +164,11 @@ public class CommunicationFragment extends Fragment {
         return tempFile;
     }
 
-    private boolean deleteTempFiles(File file) {
+    public void deleteTempFiles(){
+        deleteTempFiles(tempFile);
+    }
+
+    private void deleteTempFiles(File file) {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files != null) {
@@ -166,13 +182,17 @@ public class CommunicationFragment extends Fragment {
             }
         }
         Log.i(TAG, "Deleting file: "+file.getPath());
-        return file.delete();
+        file.delete();
     }
+
+
 
     private class SendReceive extends Thread {
         private Socket socket;
         private InputStream inputStream;
         private OutputStream outputStream;
+
+        public boolean clean = false;
 
         public SendReceive(Socket socket) {
             this.socket = socket;
@@ -191,52 +211,61 @@ public class CommunicationFragment extends Fragment {
             byte[] header_buffer = new byte[44]; //used to detect the start of a file
             byte[] audioByteArray;
             int size;
+            //keep thread alive if not recording
             while (true) {
-                //keep thread alive if not recording
+                // if (recording)
                 if (model.getRecording().getValue()) {
                     try {
-                        // read the incoming file into a byte array
-                        if (inputStream.read(header_buffer) == 44) {
-                            ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer, 40, 44)).order(ByteOrder.LITTLE_ENDIAN);
-                            size = wrappedSize.getInt() + 44;
-                            if(size != 17684){
-                                byte[] riff = Arrays.copyOfRange(header_buffer,0,4);
-                                Log.i(TAG, "READING FRAME ISSUE, got size as:"+size+"\nHeader starts with: "+new String(riff, StandardCharsets.UTF_8));
+                           // read the incoming file into a byte array
+                            if (inputStream.read(header_buffer) == 44) {
+                                ByteBuffer wrappedSize = ByteBuffer.wrap(Arrays.copyOfRange(header_buffer, 40, 44)).order(ByteOrder.LITTLE_ENDIAN);
+                                size = wrappedSize.getInt() + 44;
+                                if (size != 17684) {
+                                    byte[] riff = Arrays.copyOfRange(header_buffer, 0, 4);
+                                    Log.i(TAG, "READING FRAME ISSUE, got size as:" + size + "\nHeader starts with: " + new String(riff, StandardCharsets.UTF_8));
+                                    StringBuilder incorrectHeader = new StringBuilder("Header in bytes: ");
+                                    for (int i = 0; i < 44; i++) {
+                                        incorrectHeader.append(String.format("%02x ", header_buffer[i]));
+                                    }
+                                    Log.i(TAG, incorrectHeader.toString());
+                                    // stop the recording.
+                                    stopRecording();
+                                    long skipped = inputStream.skip(inputStream.available());
+                                    Log.i(TAG, "Skipped " + skipped + " bytes");
+                                    // display a popup
+                                    DialogFragment commErrorDialog = new SaveRecordingDialog("Communication error occurred. Recording Stopped.");
+                                    commErrorDialog.show(getFragmentManager(), "Communication_Error");
+                                } else {
+                                    //Read the data
+                                    audioByteArray = new byte[size];
+                                    System.arraycopy(header_buffer, 0, audioByteArray, 0, 44); // add the header to the audio byte array
+                                    int pointer = 44;
+                                    while (pointer < size) {
+                                        int count = inputStream.read(audioByteArray, pointer, size - pointer);
+                                        pointer += count;
+                                    }
 
-                                // stop the recording.
-                                stopRecording();
-                                long skipped = inputStream.skip(inputStream.available());
-                                Log.i(TAG,"Skipped "+skipped+" bytes.");
-                            }
-                            else {
-                                //Read the data
-                                audioByteArray = new byte[size];
-                                System.arraycopy(header_buffer, 0, audioByteArray, 0, 44); // add the header to the audio byte array
-                                int pointer = 44;
-                                while (pointer < size) {
-                                    int count = inputStream.read(audioByteArray, pointer, size - pointer);
-                                    pointer += count;
+                                    audioRecorder.writeData(Arrays.copyOfRange(audioByteArray, 44, audioByteArray.length));
+                                    // end audioRecorder
+                                    BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray));
+                                    audioAnalyzer.initDispatcher(audioInputStream);
+                                    audioAnalyzer.startAnalyzer();
                                 }
-
-                                audioRecorder.writeData(Arrays.copyOfRange(audioByteArray, 44, audioByteArray.length));
-                                // end audioRecorder
-                                BufferedInputStream audioInputStream = new BufferedInputStream(new ByteArrayInputStream(audioByteArray));
-                                audioAnalyzer.initDispatcher(audioInputStream);
-                                audioAnalyzer.startAnalyzer();
                             }
-                        }
+
 
                     } catch (IOException e) {
-                        Log.i(TAG, "IOException occurred: "+e.getMessage());
+                        Log.i(TAG, "IOException occurred: " + e.getMessage());
                         Intent intent = new Intent(getActivity(), Ins4Activity.class);
                         startActivity(intent);
                         break;
                     } catch (NegativeArraySizeException ne) {
-                        Log.i(TAG, "NegativeArraySizeException occured:" +ne.getMessage() );
+                        Log.i(TAG, "NegativeArraySizeException occured:" + ne.getMessage());
                         getActivity().onBackPressed();
                         Intent intent = new Intent(getActivity(), Ins4Activity.class);
                         startActivity(intent);
                     }
+
                 }
             }
         }
