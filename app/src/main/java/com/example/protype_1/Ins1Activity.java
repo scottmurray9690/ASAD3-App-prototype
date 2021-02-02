@@ -6,6 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * Ins1Activity
+ * Simple instructions for how to use the app & device (page 1)
+ *
+ * Most of the UI needs to be updated, but this is still functional
+ */
 public class Ins1Activity extends AppCompatActivity {
 
     @Override

@@ -6,6 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * Ins3Activity
+ * Simple instructions for how to use the app & device (page 3)
+ *
+ */
 public class Ins3Activity extends AppCompatActivity {
 
     @Override
@@ -25,6 +30,7 @@ public class Ins3Activity extends AppCompatActivity {
         button_text = ((Button) View).getText().toString();
 
         switch (button_text) {
+            // This case isn't possible with current build, but should probably be implemented
             case "Prev":
                 startActivity(new Intent(this, Ins2Activity.class));
                 break;

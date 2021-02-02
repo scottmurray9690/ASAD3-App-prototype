@@ -23,6 +23,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * FeatureActivity
+ * This is a questionnaire that collects data from the patient,
+ * the data is written to a csv file which is saved in /ASAD3/profiles/
+ * Note: it might be good to add a dialog so the user confirms they want to
+ *       save the profile
+ */
 public class featureActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     Button b1;
     EditText lastName, firstName, age, neckWidth, BMI;
@@ -110,19 +117,26 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
         return valid;
     }
 
+    /**
+     * Writes all the data into a file
+     */
     public String writeCsv() {
+        // Get info for filename
         String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
         String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ASAD3" + File.separator + "profiles";
         String initials = firstName.getText().charAt(0) +""+ lastName.getText().charAt(0);
         String fileName = initials +"_"+ currentDate + "Recording1.csv";
         String filePath = baseDir +  File.separator + fileName;
 
+        // Create the directory if necessary
         File directory = new File(baseDir);
         directory.mkdirs();
 
+        // create the file
         File tempFile = new File(filePath);
 
         int recNum = 1;
+        // if the filename is taken, increment recording number and rename
         while(tempFile.exists()){
             recNum++;
 
@@ -135,8 +149,8 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
         Log.i("FeatAct","File path: "+ filePath);
         Log.i("FeatAct","First name: "+ firstName.getText().charAt(0)+ "// "+ firstName.getText());
 
+        // Write the data to the file
         FileWriter csvWriter;
-
         try {
             csvWriter = new FileWriter(tempFile, false);
             csvWriter.append("FirstName,LastName,Sex,Age,NeckWidth,BMI,HoursSlept,Smoking,Snoring,SleepWhileDriving,Tiredness0-5");
@@ -156,8 +170,6 @@ public class featureActivity extends AppCompatActivity implements AdapterView.On
 
     /**
      * go to next feature page (Executed when "NEXT" is clicked)
-     * @param View
-     *
      */
     public void to_feat1 (View View) {
         //if all entries

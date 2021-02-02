@@ -7,7 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-
+/**
+ * Ins2Activity
+ * Simple instructions for how to use the app & device (page 2)
+ *
+ */
 public class Ins2Activity extends AppCompatActivity {
 
     @Override
@@ -28,6 +32,7 @@ public class Ins2Activity extends AppCompatActivity {
         button_text = ((Button) View).getText().toString();
 
         switch (button_text) {
+            // This case doesn't exist right now, but should be implemented in the future
             case "Prev":
                 startActivity(new Intent(this, Ins1Activity.class));
                 break;
@@ -35,9 +40,9 @@ public class Ins2Activity extends AppCompatActivity {
             case "Next":
                     startActivity(new Intent(this, Ins3Activity.class));
                 break;
-
+            // Used for debugging to skip instructions, not necessary for final app.
             case "Skip":
-                //startActivity(new Intent(this, TestActivity.class));
+                //startActivity(new Intent(this, Ins4Activity.class));
                 break;
 
             default:

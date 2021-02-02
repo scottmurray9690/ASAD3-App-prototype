@@ -5,7 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-
+/**
+ * Ins4Activity
+ * Simple instructions for how to use the app & device (page 4)
+ *
+ * This page leads to the SocketConnectActivity, which is where the more complicated stuff begins
+ *
+ */
 public class Ins4Activity extends AppCompatActivity {
     Button btn_next;
     @Override

@@ -11,6 +11,10 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.net.InetAddress;
 
+/**
+ * SocketConnectActivity
+ * Attempts to connect to the ASAD3 Rpi device
+ */
 public class SocketConnectActivity extends AppCompatActivity {
     SocketHandler socketHandler;
     TextView connectionStatus;
@@ -19,19 +23,23 @@ public class SocketConnectActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     @Override
+    /**
+     * Sets up socket and attempts to start socket connection.
+     *
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socket_connect);
+
+        // Create sockethandler so socket can persist between activities
         socketHandler = new SocketHandler();
+
+        // set up UI elements
         connectionStatus = findViewById(R.id.connectionStatus);
         errorMessage = findViewById(R.id.errorMessage);
         progressBar = findViewById(R.id.progressBar);
-        try {
-            socketHandler.newSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         tryAgainButton = findViewById(R.id.retryButton);
+        // set up "try again" button
         tryAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,9 +52,22 @@ public class SocketConnectActivity extends AppCompatActivity {
             }
         });
         tryAgainButton.setVisibility(View.INVISIBLE);
+
+        // Set up the socket
+        try {
+            socketHandler.newSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Start the connection
         new Thread(startConnection).start();
     }
 
+    /**
+     * Starts the connection
+     * if it fails it notifies the user and allows them to try again
+     * if it succeeds then proceed to CommunicationActivity
+     */
     private Runnable startConnection = new Runnable(){
             @Override
             public void run() {
@@ -59,9 +80,11 @@ public class SocketConnectActivity extends AppCompatActivity {
                         errorMessage.setText("");
                     }});
                 try {
+                    // try to connect
                     socketHandler.connectTo(InetAddress.getByName("192.168.50.1"), 8888);
                     startCommunicationActivity();
                 } catch (IOException e) {
+                    //if it fails, prompt user to try again
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -73,6 +96,7 @@ public class SocketConnectActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }};
+
 
     private void startCommunicationActivity(){
         Intent nextActivity = new Intent(this, CommunicationActivity.class);

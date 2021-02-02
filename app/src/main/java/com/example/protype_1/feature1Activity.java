@@ -21,6 +21,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * feature1Activity
+ * Page 2 of questionnaire and profile writing, Continuation of featureActivity.
+ * This is likely where you would prompt the user to save the profile or not.
+ *
+ */
 public class feature1Activity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     Button b1;
     EditText hoursSleep;
@@ -36,6 +42,7 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feat_1);
 
+        // get the file path passed from the first half of the questionnaire
         Bundle extras = getIntent().getExtras();
         filePath = extras.getString("FILE_PATH");
 
@@ -85,7 +92,6 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
 
         List<String> categories1 = new ArrayList<String>();
         categories1.clear();
-        //categories.add("");
         categories1.add("Yes");categories1.add("No");
         ArrayAdapter<String> dataAdapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories1);
         // Drop down layout style - list view with radio button
@@ -95,7 +101,6 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
 
         List<String> categories2 = new ArrayList<String>();
         categories2.clear();
-        //categories.add("");
         for(int i = 1; i <= 5; i++){categories2.add(""+i);}
         ArrayAdapter<String> dataAdapter4 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories2);
         // Drop down layout style - list view with radio button
@@ -106,30 +111,7 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
 
     }
 
-
-//////EDIT HERE//////////////////////////////////////////////////
-    private void read(View view) {
-        try {
-            FileInputStream fileInputStream= openFileInput("profile");
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuffer stringBuffer = new StringBuffer();
-            String lines;
-            while ((lines=bufferedReader.readLine())!=null) {
-                stringBuffer.append(lines+"\n");
-            }
-            //textView.setText(stringBuffer.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-////////////////////////////////////////////////////////////////////
-
     /**
-     *
-     * @return
      * Method that checks if all features have been entered correctly
      */
     private boolean check(){
@@ -162,13 +144,12 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
     }
 
     /**
-     *
-     * @param View
-     * Go to next Analysis page (Executed when "NEXT" is clicked)
+     * Go to next page (Executed when "NEXT" is clicked)
      */
     public void to_ins (View View) {
         //if all entries
         if(check()) {
+            // Write the file (in the future prompt the user)
             writeCsv();
             startActivity(new Intent(this, Ins1Activity.class));
         }
@@ -188,6 +169,6 @@ public class feature1Activity extends AppCompatActivity implements AdapterView.O
     }
 
     public void onNothingSelected(AdapterView<?> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
     }
 }

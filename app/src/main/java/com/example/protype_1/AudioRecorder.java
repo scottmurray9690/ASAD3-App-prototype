@@ -11,6 +11,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
+/**
+ * AudioRecorder
+ * This class is used to save the audio that is being processed by the Application.
+ *
+ * it works by writing the raw data into a temporary file, and if the user chooses to save the file
+ * it is copied into permanent memory and the temporary file is deleted.
+ */
 public class AudioRecorder {
     private DataOutputStream rawOutputStream;
     private boolean hasHeader;
@@ -18,11 +25,11 @@ public class AudioRecorder {
     private File tempFile; // File that holds the raw bytes while the audio is being recorded
     private File saveFile;
 
-    public AudioRecorder() {
-        //possibly put the try/catch here, idk yet
-
-    }
-
+    /**
+     * Sets up the temporary file as an DataOutputStream
+     * @param file the file given by another class, likely an activity or fragment with access to internal storage.
+     * @throws FileNotFoundException If the given file does not exist
+     */
     public void setTempFile(File file) throws FileNotFoundException {
         tempFile = file;
         OutputStream os;
@@ -31,7 +38,13 @@ public class AudioRecorder {
         rawOutputStream = new DataOutputStream(bos);
     }
 
+    /**
+     * Saves the recording to permanent memory
+     * @param location the location of the recording
+     * @throws IOException
+     */
     public void saveRecording(File location) throws IOException {
+        // sets up the file location as DataOutputStream
         OutputStream os;
         os = new FileOutputStream(location);
         BufferedOutputStream bos = new BufferedOutputStream(os);
@@ -39,9 +52,11 @@ public class AudioRecorder {
         fileOutputStream.write(getHeader());
 
         byte[] audioData;
+        // shortcut for newer android builds
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             audioData = Files.readAllBytes(tempFile.toPath());
         } else {
+            // manually read all the files from the tempfile to the fileOutputStream
             int size = (int) tempFile.length();
             audioData = new byte[size];
             BufferedInputStream buf = new BufferedInputStream(new FileInputStream(tempFile));
@@ -51,11 +66,17 @@ public class AudioRecorder {
         fileOutputStream.write(audioData);
     }
 
+    // Writes to the file while keeping track of its size
     public void writeData(byte[] data) throws IOException{
         audioLength += data.length;
         rawOutputStream.write(data);
     }
 
+    /**
+     * get a valid .wav header based on the size of the audio
+     *
+     * reference: http://soundfile.sapp.org/doc/WaveFormat/
+     */
     private byte[] getHeader(){
         byte[] header = new byte[44];
         int channels = 2;

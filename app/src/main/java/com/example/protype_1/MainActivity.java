@@ -7,6 +7,11 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+/**
+ * MainActivity
+ * This is just a simple title screen that will ask for permissions if they are not granted.
+ * NOTE: permissions could be moved to the points which they are needed.
+ */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,17 +34,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Go to next activity
-    public void Ganesh() {
-        Intent ganesh = new Intent(this, featureActivity.class);
-        startActivity(ganesh);
+    public void nextActivity() {
+        Intent intent = new Intent(this, featureActivity.class);
+        startActivity(intent);
     }
 
+    // Asks for permission required for the app to run.
     public void checkPermissions() {
         int permissionCheck = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
             requestPermissions( new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL );
         } else {
-            Ganesh();
+            nextActivity();
         }
     }
 
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, do your work....
-                    Ganesh();
+                    nextActivity();
 
                 } else {
                     // permission denied

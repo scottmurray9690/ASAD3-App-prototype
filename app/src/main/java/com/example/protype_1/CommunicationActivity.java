@@ -23,23 +23,45 @@ import java.text.DecimalFormat;
 
 import be.tarsos.dsp.io.android.AndroidFFMPEGLocator;
 
+/**
+ * CommunicationActivity
+ * Activity which manages and displays all the data being exchanged with the raspberry pi.
+ * This activity is mostly in charge of the UI, while most of the processing is done on CommunicationFragment.
+ *
+ * There are some helper classes that work with this Activity:
+ *  CommunicationFragment
+ *      Manages most of the processing so that nothing is lost when the device is rotated (IE this activity is restarted)
+ *  CommunicationViewModel
+ *      Very simple ViewModel that keeps track of whether or not the ASAD3 device is recording audio and shares it with
+ *      CommunicationFragment and CommunicationActivity
+ *
+ * Interfaces:
+ *  CommunicationFragment.TimerCallback
+ *      Used to update the countdown timer in the UI, maintaining its value when this activity is restarted.
+ *  SaveRecordingDialog.SaveRecordingDialogListener
+ *      Used so the activity can respond to the user pressing a button on the dialog that prompts "do you want to save the recording"
+ *
+ */
 public class CommunicationActivity extends AppCompatActivity implements CommunicationFragment.TimerCallback, SaveRecordingDialog.SaveRecordingDialogListener{
+    // UI elements
     ImageView spectrogram;
     Button btn_startstop;
+    Button btn_snr_reset;
     ImageButton btn_adj_up;
     ImageButton btn_adj_down;
-    Button btn_snr_reset;
     TextView stateText;
     TextView timerText;
-
     TextView lowFreqSNRtext;
     TextView midFreqSNRtext;
     TextView highFreqSNRtext;
 
+    // CommunicationFragment
     CommunicationFragment communicationFragment;
-
-    private final String TAG = "CommAct";
     private static final String TAG_COMMUNICATION_FRAGMENT = "comm_fragment";
+
+    // Tag for logging
+    private final String TAG = "CommAct";
+
 
     // Model used to keep track of whether or not the app is recording audio.
     private CommunicationViewModel model;
@@ -73,17 +95,21 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
     }
 
 
-    // Sets up Communication Fragment (where the processing is done)
-    // This allows the communication to continue even if the phone is rotated or if activity is restarted.
+    /**
+     * Sets up Communication Fragment (where the processing is done)
+     * This allows the communication to continue even if the phone is rotated or if activity is restarted.
+     */
     private void initFragment(){
         FragmentManager fm = getSupportFragmentManager();
         communicationFragment = (CommunicationFragment) fm.findFragmentByTag(TAG_COMMUNICATION_FRAGMENT);
+        // if this is the first time launching the activity (fragment not initialized), set up the fragment.
         if(communicationFragment == null){
             communicationFragment = new CommunicationFragment();
             fm.beginTransaction().add(communicationFragment, TAG_COMMUNICATION_FRAGMENT).commit();
         }
     }
 
+    // Sets up all the UI elements
     private void initWork() {
         spectrogram     = findViewById(R.id.spectrogram);
         btn_startstop   = findViewById(R.id.btn_startstop);
@@ -96,9 +122,9 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
         stateText       = findViewById(R.id.stateTextView);
         timerText       = findViewById(R.id.timerTextView);
         updateTimer(0);
-//        stateText.setText("Hold your breath");
     }
 
+    // Sets up onClicks
     private void initOnClicks() {
         btn_startstop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,8 +151,12 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
             }
         });
     }
-
-    public void toggleRecording() {
+    /**
+     * Toggles recording,
+     * resets SNR if its starting
+     * prompts to save if its stopping
+     */
+     public void toggleRecording() {
         if(!model.getRecording().getValue()) {
             model.getRecording().setValue(true);
             communicationFragment.startRecording();
@@ -138,28 +168,35 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
         }
     }
 
+    /**
+     * The next 2 methods are for the dialog that pops up prompting users to save their recording or not
+     * onDialogNegativeClick: user clicked 'cancel'
+     * onDialogPositiveClick: user clicked 'save'
+     */
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         //User wants to discard the recording
         communicationFragment.deleteTempFiles();
     }
-
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         //User wants to save the recording
         communicationFragment.saveRecording();
     }
 
+    /**
+     * This method sets up the timer/countdown UI element to work in the fragment
+     */
     @Override
-    // Sets up timer to use the fragment, so it isn't reset on device rotation
     public void onAttachFragment(Fragment fragment) {
         if(fragment instanceof CommunicationFragment) {
             CommunicationFragment commFrag = (CommunicationFragment)fragment;
             commFrag.setTimerCallback(this);
         }
     }
-
-    //Display instructions for getting SNR to the user
+    /**
+     * Display instructions for getting SNR to the user
+     */
     public void updateTimer(long milliseconds){
         if(milliseconds == 0){
             timerText.setText("");
@@ -170,7 +207,9 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
         }
     }
 
-    // Display the spectrogram & SNR Data
+    /**
+     * Displays the current SNR and spectrogram to the user
+     */
     private void displaySoundData() {
         new Thread() {
             public void run() {
@@ -209,6 +248,7 @@ public class CommunicationActivity extends AppCompatActivity implements Communic
                             }
                             spectrogram.setImageBitmap(tempBitmap);
 
+                            // get and display the SNR
                             double lowFreqSNR = communicationFragment.getSnrHelper().getSNR(44,1000);
                             double midFreqSNR = communicationFragment.getSnrHelper().getSNR(1000,3000);
                             double highFreqSNR = communicationFragment.getSnrHelper().getSNR(3000,10000);
